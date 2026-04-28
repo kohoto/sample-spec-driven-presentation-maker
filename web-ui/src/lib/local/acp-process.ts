@@ -137,7 +137,7 @@ export async function ensureAgent(agentName: string = "sdpm-spec"): Promise<void
   child = spawn("kiro-cli", ["acp", "--agent", agentName], {
     cwd: mcpLocalDir,
     stdio: ["pipe", "pipe", "pipe"],
-    env: { ...process.env, SDPM_OUTPUT_DIR: DECK_ROOT },
+    env: { ...process.env, SDPM_OUTPUT_DIR: DECK_ROOT, SDPM_DECK_ROOT: DECK_ROOT },
   })
   const newChild = child
 
