@@ -5,7 +5,9 @@
   "license": "MIT-0",
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:local": "NEXT_PUBLIC_MODE=local next dev --turbopack",
     "build": "next build",
+    "build:cloud": "bash -c 'trap \"mv src/app/_api src/app/api 2>/dev/null\" EXIT; mv src/app/api src/app/_api && next build'",
     "start": "next start",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
@@ -23,6 +25,7 @@
     "aws-amplify": "^6.15.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "dompurify": "^3.3.3",
     "lucide-react": "^0.562.0",
     "next": "^16.2.3",

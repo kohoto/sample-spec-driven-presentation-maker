@@ -14,10 +14,10 @@ const yaml = require("yaml");
 // Parse MODEL_METADATA from the .ts source directly (simple regex, no TS compiler needed).
 const metadataSource = fs.readFileSync(path.join(__dirname, "model-metadata.ts"), "utf8");
 const metadata = {};
-const re = /"([^"]+)":\s*\{[^}]*displayName:\s*"([^"]*)"(?:[^}]*description:\s*"([^"]*)")?/g;
+const re = /"([^"]+)":\s*\{[^}]*displayName:\s*"([^"]*)"(?:[^}]*description:\s*"([^"]*)")?(?:[^}]*composable:\s*(false))?/g;
 let match;
 while ((match = re.exec(metadataSource)) !== null) {
-  metadata[match[1]] = { displayName: match[2], description: match[3] };
+  metadata[match[1]] = { displayName: match[2], description: match[3], composable: match[4] !== "false" };
 }
 
 const config = yaml.parse(fs.readFileSync(path.join(__dirname, "../config.yaml"), "utf8"));
@@ -26,7 +26,9 @@ const models = ids.map((id) => ({
   modelId: id,
   displayName: metadata[id]?.displayName,
   description: metadata[id]?.description,
+  composable: metadata[id]?.composable !== false,
 }));
 
 console.log(`export NEXT_PUBLIC_ALLOWED_MODELS=${JSON.stringify(JSON.stringify(models))}`);
-console.log(`export NEXT_PUBLIC_DEFAULT_MODEL_ID=${config.model?.modelId || ""}`);
+console.log(`export NEXT_PUBLIC_DEFAULT_CHAT_MODEL_ID=${config.model?.defaults?.chat || ""}`);
+console.log(`export NEXT_PUBLIC_DEFAULT_CREATE_MODEL_ID=${config.model?.defaults?.create || config.model?.defaults?.chat || ""}`);
