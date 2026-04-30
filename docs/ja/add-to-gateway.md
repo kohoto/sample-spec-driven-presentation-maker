@@ -87,6 +87,81 @@ curl -X POST \
   }'
 ```
 
+### MCP クライアント (mcp.json) での設定例
+
+Claude Desktop / VS Code / Kiro などの MCP クライアントから Runtime に接続するには、`mcp.json` に以下のいずれかを記述します。
+
+#### Cognito JWT 認証を使う場合
+
+事前に OAuth 2.0 Client Credentials フロー等で JWT トークンを取得しておき、環境変数として渡す方式です。HTTP ストリーミングトランスポートを指定し、`Authorization` ヘッダに Bearer トークンを付与します。
+
+```json
+{
+  "mcpServers": {
+    "spec-driven-presentation-maker": {
+      "url": "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/<ENCODED_ARN>/invocations?qualifier=DEFAULT",
+      "transport": "streamable-http",
+      "headers": {
+        "Authorization": "Bearer ${SDPM_JWT_TOKEN}",
+        "Accept": "application/json, text/event-stream"
+      }
+    }
+  }
+}
+```
+
+JWT トークンの取得方法は[はじめに — OAuth トークンの取得](getting-started.md#oauth-トークンの取得)を参照してください。トークンには有効期限があるため、長時間の利用では自動更新の仕組みが必要です。
+
+#### IAM 認証を使う場合
+
+Cognito を使わない構成（`config.yaml` の `auth.oidcDiscoveryUrl` で外部 IdP を使わない、かつ IAM ベースでアクセス制御する場合）では、[mcp-proxy-for-aws](https://github.com/aws/mcp-proxy-for-aws) を使って IAM SigV4 署名を自動化します。
+
+```json
+{
+  "mcpServers": {
+    "spec-driven-presentation-maker": {
+      "command": "uvx",
+      "args": [
+        "mcp-proxy-for-aws",
+        "--service", "bedrock-agentcore",
+        "--region", "us-east-1",
+        "--url", "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/<ENCODED_ARN>/invocations?qualifier=DEFAULT"
+      ]
+    }
+  }
+}
+```
+
+AWS 認証情報は通常通り `~/.aws/credentials` または環境変数で設定してください。
+
+---
+
+## セキュリティ: MCP エンドポイントの保護
+
+Runtime エンドポイントは **Public インターネットに公開** されます。認証（Cognito JWT / IAM）により不正アクセスは防止されますが、次の追加対策を **強く推奨** します。
+
+### WAF による IP 制限
+
+`config.yaml` の `waf.allowedIpV4AddressRanges` / `allowedIpV6AddressRanges` を設定することで、CloudFront と API Gateway に AWS WAF のルールを適用できます。社内 VPN や特定オフィスからのみアクセスさせる場合に有効です。
+
+```yaml
+waf:
+  allowedIpV4AddressRanges:
+    - "192.0.2.0/24"      # 社内ネットワーク IPv4
+    - "203.0.113.10/32"   # 個別 IP
+  allowedIpV6AddressRanges:
+    - "2001:db8::/32"     # 社内ネットワーク IPv6
+```
+
+**重要**: Runtime エンドポイント（`bedrock-agentcore.*.amazonaws.com`）自体は AWS サービスが管理するため WAF を直接アタッチできません。上記設定は Web UI（CloudFront）と API（API Gateway）に適用されます。Runtime への不正アクセスを防ぐ主要な防御層は **JWT / IAM 認証** になります。
+
+### その他の推奨事項
+
+- **JWT トークンは環境変数経由で渡し、`mcp.json` に平文で書かない**
+- **Cognito を使う場合、許可クライアント ID (`allowedClients`) を必要最小限にする**
+- **本番利用では CloudTrail を有効化し、Runtime へのアクセスを監査ログに残す**
+- **CORS 設定を自社ドメインに絞る**
+
 ---
 
 ## 認証設定

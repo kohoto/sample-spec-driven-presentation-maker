@@ -124,6 +124,83 @@ curl -X POST \
   }'
 ```
 
+### MCP client configuration (mcp.json)
+
+To connect Claude Desktop / VS Code / Kiro to the Runtime, add one of the following to your `mcp.json`.
+
+#### With Cognito JWT authentication
+
+Obtain a JWT via the OAuth 2.0 Client Credentials flow, pass it as an environment variable, and attach it as a Bearer token via the HTTP streaming transport.
+
+```json
+{
+  "mcpServers": {
+    "spec-driven-presentation-maker": {
+      "url": "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/<ENCODED_ARN>/invocations?qualifier=DEFAULT",
+      "transport": "streamable-http",
+      "headers": {
+        "Authorization": "Bearer ${SDPM_JWT_TOKEN}",
+        "Accept": "application/json, text/event-stream"
+      }
+    }
+  }
+}
+```
+
+See [Getting Started — Obtaining an OAuth Token](getting-started.md#obtaining-an-oauth-token) for how to fetch the token. Tokens expire, so long-running clients need a refresh mechanism.
+
+#### With IAM authentication
+
+When you are not using Cognito (e.g. you rely on IAM-based access control without an external OIDC IdP), use [mcp-proxy-for-aws](https://github.com/aws/mcp-proxy-for-aws) to automate SigV4 signing.
+
+```json
+{
+  "mcpServers": {
+    "spec-driven-presentation-maker": {
+      "command": "uvx",
+      "args": [
+        "mcp-proxy-for-aws",
+        "--service", "bedrock-agentcore",
+        "--region", "us-east-1",
+        "--url", "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/<ENCODED_ARN>/invocations?qualifier=DEFAULT"
+      ]
+    }
+  }
+}
+```
+
+AWS credentials are resolved via the standard chain (`~/.aws/credentials`, environment variables, etc.).
+
+---
+
+## Security: protecting the MCP endpoint
+
+The Runtime endpoint is exposed on the **public internet**. Authentication (Cognito JWT or IAM) prevents unauthorized access, but the following additional measures are **strongly recommended**.
+
+### WAF IP restrictions
+
+Set `waf.allowedIpV4AddressRanges` / `allowedIpV6AddressRanges` in `config.yaml` to attach AWS WAF rules to CloudFront and API Gateway. Useful for restricting access to a corporate VPN or specific office networks.
+
+```yaml
+waf:
+  allowedIpV4AddressRanges:
+    - "192.0.2.0/24"      # Corporate IPv4 range
+    - "203.0.113.10/32"   # Individual IP
+  allowedIpV6AddressRanges:
+    - "2001:db8::/32"     # Corporate IPv6 range
+```
+
+**Note**: The Runtime endpoint itself (`bedrock-agentcore.*.amazonaws.com`) is managed by AWS and cannot have WAF attached directly. The WAF rules above apply to the Web UI (CloudFront) and API (API Gateway). The primary defence for the Runtime is **JWT / IAM authentication**.
+
+### Other recommendations
+
+- **Pass JWT tokens via environment variables**, not in `mcp.json` as plain text.
+- **Keep `allowedClients` as small as possible** when using Cognito.
+- **Enable CloudTrail** in production to audit Runtime access.
+- **Tighten CORS** to your organisation's domains.
+
+---
+
 ## Authentication Configuration
 
 ### Default: Amazon Cognito User Pool

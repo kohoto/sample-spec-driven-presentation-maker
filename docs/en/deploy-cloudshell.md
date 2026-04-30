@@ -54,10 +54,10 @@ Choose options based on your use case.
 **Enable Bedrock Model Invocation Logging:**
 
 ```bash
-./scripts/deploy.sh --region us-east-1 --observability
+./scripts/deploy.sh --region us-east-1 --enable-invocation-logging
 ```
 
-> **Note:** `--observability` configures Bedrock Model Invocation Logging (MIL) at the account/region level. If MIL is already configured, the script will display a warning and automatically skip the MIL setup to preserve the existing configuration.
+> **Note:** `--enable-invocation-logging` configures Bedrock Model Invocation Logging (MIL) at the account/region level. If MIL is already configured, the script will display a warning and automatically skip the MIL setup to preserve the existing configuration.
 
 **With an external IdP:**
 
@@ -201,8 +201,7 @@ echo "Open the URL above to sign in."
 | `--profile PROFILE` | AWS CLI profile | — |
 | `--layer3` | Layer 3 only (MCP Server) | — |
 | `--layer4` | Layer 4 full stack | Default |
-| `--search` | Enable semantic slide search | Disabled |
-| `--observability` | Enable Bedrock Model Invocation Logging | Disabled |
+| `--enable-invocation-logging` | Enable Bedrock Model Invocation Logging | Disabled |
 | `--oidc-url URL` | External IdP OIDC Discovery URL | — |
 | `--allowed-clients IDS` | Comma-separated JWT allowed client IDs | — |
 | `--waf-ipv4 CIDRS` | Comma-separated IPv4 CIDR ranges for WAF | — |
@@ -228,9 +227,9 @@ CloudShell's home directory is 1 GB. Delete unnecessary files.
 rm -rf ~/sample-spec-driven-presentation-maker
 ```
 
-**--observability warns "already configured"**
+**--enable-invocation-logging warns "already configured"**
 
-Bedrock Model Invocation Logging allows only one configuration per account/region. If an existing configuration is found, `deploy.sh` will display a warning with the existing log group name and automatically skip the MIL setup. The deployment continues with observability disabled to preserve the existing configuration. To use SDPM's observability, first remove the existing MIL configuration manually, then re-run with `--observability`.
+Bedrock Model Invocation Logging allows only one configuration per account/region. If an existing configuration is found, `deploy.sh` will display a warning with the existing log group name and automatically skip the MIL setup. The deployment continues with Invocation Logging disabled to preserve the existing configuration. To use SDPM's Invocation Logging, first remove the existing MIL configuration manually, then re-run with `--enable-invocation-logging`.
 
 ## Estimated Monthly Cost
 
@@ -258,6 +257,7 @@ Estimates for Layer 4 full stack (us-east-1). Assumes a team of ~10 users genera
 | Bedrock Claude Sonnet 4.6 (Agent LLM) | ~$80-130 |
 | AgentCore Code Interpreter | ~$1-3 |
 | AgentCore Memory | ~$1 |
+| Slide search (Bedrock KB + Titan Embed V2 + S3 Vectors) | ~$0.01-0.05 |
 
 ### Total
 
@@ -268,8 +268,7 @@ Estimates for Layer 4 full stack (us-east-1). Assumes a team of ~10 users genera
 | Method | Savings | Notes |
 |---|---|---|
 | Prompt caching | LLM cost up to 80% reduction | Enabled by default for supported models |
-| Don't use `--search` (default) | No KB + S3 Vectors cost | Skip if semantic search isn't needed |
-| Don't use `--observability` (default) | No CloudWatch Logs cost | Skip if MIL logging isn't needed |
+| Don't use `--enable-invocation-logging` (default) | No CloudWatch Logs cost | Skip if MIL logging isn't needed |
 
 ## Related Documents
 

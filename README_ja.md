@@ -123,6 +123,8 @@ npm install && npx cdk deploy --all
 | [エージェント接続](docs/ja/add-to-gateway.md) | Amazon Bedrock AgentCore Gateway と MCP クライアントの接続方法 |
 | [Teams・Slack 連携](docs/ja/teams-slack-integration.md) | チャットプラットフォーム連携 |
 | [テンプレート・アセット](docs/ja/custom-template.md) | カスタムテンプレートとアセットの追加 |
+| [コスト試算](docs/ja/cost.md) | 月額コストの内訳と最適化 |
+| [削除手順](docs/ja/uninstall.md) | デプロイ済み AWS リソースの削除 |
 
 ---
 

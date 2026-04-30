@@ -123,6 +123,8 @@ See [Architecture](docs/en/architecture.md) for details.
 | [Connecting Agents](docs/en/add-to-gateway.md) | Amazon Bedrock AgentCore Gateway and MCP client configuration |
 | [Teams & Slack Integration](docs/en/teams-slack-integration.md) | Chat platform integration |
 | [Custom Templates & Assets](docs/en/custom-template.md) | Adding custom templates and icons |
+| [Cost Estimates](docs/en/cost.md) | Monthly cost breakdown and optimisation tips |
+| [Uninstall](docs/en/uninstall.md) | Clean up deployed AWS resources |
 
 ---
 

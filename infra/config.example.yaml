@@ -14,8 +14,7 @@ stacks:
   webUi: false         # Layer 4 — React Web UI (Amplify Hosting)
 
 features:
-  searchSlides: false   # Semantic slide search (requires Bedrock Knowledge Base)
-  observability: false  # Bedrock Model Invocation Logging (account-level, skipped if already configured)
+  enableInvocationLogging: false  # Bedrock Model Invocation Logging (account-level, skipped if already configured)
 
 # Model configuration for the Agent (Layer 4).
 # Use inference profile IDs for cross-region routing.

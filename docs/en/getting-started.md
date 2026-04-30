@@ -109,7 +109,7 @@ stacks:
   webUi: false
 
 features:
-  searchSlides: false   # Semantic slide search (requires Bedrock Knowledge Base)
+  enableInvocationLogging: false  # Bedrock Model Invocation Logging (optional)
 ```
 
 ### Deploy
@@ -207,7 +207,7 @@ stacks:
   webUi: true          # React Web UI (S3 + CloudFront)
 
 features:
-  searchSlides: false
+  enableInvocationLogging: false
 ```
 
 ```bash
@@ -287,9 +287,9 @@ Default action is **Block** — only the listed IP ranges are allowed. When the 
 
 ### Semantic Slide Search
 
-Set `features.searchSlides: true` to create a Amazon Bedrock Knowledge Base for cross-deck semantic search.
+Cross-deck semantic search is provided out of the box, backed by Amazon Bedrock Knowledge Bases and Amazon S3 Vectors. No extra configuration is needed.
 
-As a prerequisite, enable access to the Amazon Titan Text Embeddings V2 model in your deployment region (Amazon Bedrock console → Model access).
+The estimated cost is under $0.05/month for typical usage (~1,000 slides, 100 searches/month). See [Cost Estimates](cost.md) for details.
 
 ### Custom Templates and Assets
 

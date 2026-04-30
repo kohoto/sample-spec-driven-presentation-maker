@@ -109,7 +109,7 @@ stacks:
   webUi: false
 
 features:
-  searchSlides: false   # セマンティックスライド検索（Bedrock Knowledge Base が必要）
+  enableInvocationLogging: false  # Bedrock Model Invocation Logging（任意）
 ```
 
 ### デプロイ
@@ -207,7 +207,7 @@ stacks:
   webUi: true          # React Web UI（S3 + CloudFront）
 
 features:
-  searchSlides: false
+  enableInvocationLogging: false
 ```
 
 ```bash
@@ -287,9 +287,9 @@ waf:
 
 ### セマンティックスライド検索
 
-`features.searchSlides: true` を設定すると、Amazon Bedrock Knowledge Base が作成され、デッキ横断のセマンティック検索が利用可能になります。
+Amazon Bedrock Knowledge Bases と Amazon S3 Vectors を用いた、デッキ横断のセマンティック検索を標準機能として提供します。追加の設定は不要です。
 
-事前準備として、デプロイリージョンで Amazon Titan Text Embeddings V2 モデルへのアクセスを有効化してください（Amazon Bedrock コンソール → Model access）。
+想定コストは標準利用（〜1,000 スライド、月 100 検索）で月額 $0.05 以下です。詳細は [コスト試算](cost.md) を参照してください。
 
 ### カスタムテンプレート・アセット
 
@@ -302,7 +302,7 @@ waf:
 ### コスト
 
 - Amazon Bedrock AgentCore Runtime は 2 つのコンテナ（Agent + MCP Server）を実行します
-- `features.searchSlides` を有効にすると Amazon Bedrock Knowledge Base が追加で作成されます
+- Amazon Bedrock Knowledge Base + Amazon S3 Vectors がデフォルトで作成されます（スライド検索用、標準利用で月 $0.05 以下）
 - 開発・検証が終わったら `npx cdk destroy --all` でリソースを削除してください
 
 ### データ保持
