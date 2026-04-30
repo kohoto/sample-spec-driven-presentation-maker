@@ -35,24 +35,6 @@ export const MODEL_METADATA: Record<string, ModelMetadata> = {
     description: "Fast and economical",
     composable: false,
   },
-  // --- Moonshot AI ---
-  "moonshotai.kimi-k2.5": {
-    displayName: "Kimi K2.5",
-    description: "High performance, 256K context, cost-efficient",
-    composable: false,
-  },
-  // --- DeepSeek ---
-  "deepseek.v3.2": {
-    displayName: "DeepSeek V3.2",
-    description: "Strong reasoning, very low cost",
-    composable: false,
-  },
-  // --- Qwen ---
-  "qwen.qwen3-235b-a22b-2507-v1:0": {
-    displayName: "Qwen3 235B",
-    description: "Alibaba's flagship, agent-capable",
-    composable: false,
-  },
   // --- Amazon Nova ---
   "us.amazon.nova-2-lite-v1:0": {
     displayName: "Nova 2 Lite",

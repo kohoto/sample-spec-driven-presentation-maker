@@ -109,12 +109,6 @@ MODEL_PROFILES: dict[str, ModelProfile] = {
     "global.anthropic.claude-haiku-4-5-20251001-v1:0": CLAUDE_HAIKU,
     # Amazon Nova
     "us.amazon.nova-2-lite-v1:0": NOVA_2_DEFAULT,
-    # DeepSeek
-    "deepseek.v3.2": DEEPSEEK_DEFAULT,
-    # Qwen
-    "qwen.qwen3-235b-a22b-2507-v1:0": QWEN_DEFAULT,
-    # Moonshot AI
-    "moonshotai.kimi-k2.5": KIMI_DEFAULT,
 }
 
 

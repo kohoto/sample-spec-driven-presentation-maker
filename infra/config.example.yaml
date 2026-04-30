@@ -40,9 +40,6 @@ model:
     - "global.anthropic.claude-opus-4-7"
     - "global.anthropic.claude-opus-4-6-v1"
     - "global.anthropic.claude-haiku-4-5-20251001-v1:0"
-    - "moonshotai.kimi-k2.5"
-    - "deepseek.v3.2"
-    - "qwen.qwen3-235b-a22b-2507-v1:0"
     - "us.amazon.nova-2-lite-v1:0"
 
 # WAF IP address restriction (optional).
