@@ -14,15 +14,25 @@ const SAFE_SEGMENT = /^[a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*$/
 
 /**
  * Resolve a safe path under root. Returns null if the segment is invalid.
- * Uses allowlist validation so user input never reaches path.resolve directly.
+ * Uses allowlist validation, normalization, and root-containment checks.
  */
 function safePath(root: string, segment: string): string | null {
   if (!SAFE_SEGMENT.test(segment)) return null
-  // Construct path from validated literal — no user-controlled data in resolve
-  const resolved = path.join(root, segment)
-  // Defence-in-depth: verify the result is still under root
-  if (!resolved.startsWith(root + path.sep) && resolved !== root) return null
-  return resolved
+
+  const rootReal = fs.realpathSync.native(root)
+  const resolved = path.resolve(rootReal, segment)
+
+  // Canonicalize when possible (symlink-aware). If target does not exist yet,
+  // keep normalized resolved path for containment check.
+  let candidate = resolved
+  try {
+    candidate = fs.realpathSync.native(resolved)
+  } catch {
+    // ignore; existence is checked by callers where needed
+  }
+
+  if (candidate !== rootReal && !candidate.startsWith(rootReal + path.sep)) return null
+  return candidate
 }
 
 export async function POST(req: Request) {
