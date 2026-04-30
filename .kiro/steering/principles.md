@@ -114,3 +114,14 @@ Local            — Next.js API Routes → kiro-cli ACP, filesystem storage
 - `.session` file in deck directory — ACP sessionId
 - `.chat.json` file in deck directory — chat messages for UI display
 - `session/load` restores agent context; replay is not used for UI (Obsidian agent-client pattern)
+
+## Adding a New Bedrock Model
+
+Update these 3 files:
+
+1. **`agent/model_profiles.py`** — Invocation profile (temperature, cache, compose_capable)
+2. **`infra/lib/model-metadata.ts`** — Display name, description, composable flag
+3. **`infra/config.yaml`** — Add to `model.allowedModelIds`
+
+`compose_capable` / `composable` controls whether the model appears in the Create picker.
+Set to `false` for models below Sonnet-class capability.
