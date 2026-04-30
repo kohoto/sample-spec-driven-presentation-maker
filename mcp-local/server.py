@@ -223,10 +223,10 @@ def list_templates() -> str:
     Returns:
         JSON with list of template names.
     """
-    from sdpm.api import _get_templates_dirs
+    from sdpm.api import get_templates_dirs
 
     seen: dict[str, str] = {}
-    for d in _get_templates_dirs():
+    for d in get_templates_dirs():
         if not d.exists():
             continue
         for t in sorted(d.glob("*.pptx")):

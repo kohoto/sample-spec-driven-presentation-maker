@@ -13,21 +13,45 @@ from pathlib import Path
 from typing import Any
 
 
-def _get_templates_dirs() -> list[Path]:
+def get_templates_dirs() -> list[Path]:
     """Return ordered list of directories to search for bundled/user-local templates.
 
     Search order (first match wins):
-      1. $SDPM_TEMPLATES_DIR — colon-separated list (same semantics as PATH)
-      2. ~/.config/sdpm/templates/ — XDG-style user-local location
+      1. $SDPM_TEMPLATES_DIR — os.pathsep-separated list (same semantics as PATH)
+      2. get_user_config_dir()/templates/ — user-local templates
       3. Package-bundled templates/ directory (skill/templates/)
     """
-    dirs: list[Path] = []
-    env_value = os.environ.get("SDPM_TEMPLATES_DIR")
-    if env_value:
-        dirs.extend(Path(p).expanduser() for p in env_value.split(os.pathsep) if p)
-    dirs.append(Path.home() / ".config" / "sdpm" / "templates")
-    dirs.append(Path(__file__).parent.parent / "templates")
-    return dirs
+    from sdpm.config import _get_resource_dirs
+
+    bundled = Path(__file__).parent.parent / "templates"
+    return _get_resource_dirs("SDPM_TEMPLATES_DIR", "templates", bundled)
+
+
+def get_styles_dirs() -> list[Path]:
+    """Return ordered list of directories to search for style HTMLs.
+
+    Search order (first match wins):
+      1. $SDPM_STYLES_DIR — os.pathsep-separated list (same semantics as PATH)
+      2. get_user_config_dir()/styles/ — user-local styles
+      3. Package-bundled references/examples/styles/ directory
+    """
+    from sdpm.config import _get_resource_dirs
+    from sdpm.reference import BUNDLED_STYLES_DIR
+
+    return _get_resource_dirs("SDPM_STYLES_DIR", "styles", BUNDLED_STYLES_DIR)
+
+
+def _find_style_in_dirs(name: str, styles_dirs: list[Path]) -> Path | None:
+    """Search for a style HTML by name across the given directories.
+
+    Returns the first existing path, or None if not found.
+    """
+    filename = name if name.endswith(".html") else name + ".html"
+    for d in styles_dirs:
+        candidate = d / filename
+        if candidate.exists():
+            return candidate
+    return None
 
 
 def _find_template_in_dirs(name: str, templates_dirs: list[Path]) -> Path | None:
@@ -136,7 +160,7 @@ def init(
     if template:
         template_src = Path(template).expanduser()
         if not template_src.exists():
-            found = _find_template_in_dirs(str(template), _get_templates_dirs())
+            found = _find_template_in_dirs(str(template), get_templates_dirs())
             if found is not None:
                 template_src = found
         if template_src.exists():
@@ -255,7 +279,7 @@ def _resolve_config(json_path: str | Path) -> BuildConfig:
         data = read_json(input_path)
         base_dir = input_path.parent
 
-    templates_dirs = _get_templates_dirs()
+    templates_dirs = get_templates_dirs()
     warnings: list[str] = []
 
     template_file, custom = _resolve_template(data, str(input_path), templates_dirs)
