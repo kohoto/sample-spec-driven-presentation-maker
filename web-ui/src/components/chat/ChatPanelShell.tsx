@@ -101,7 +101,7 @@ export function ChatPanelShell({
       fetch("/api/agent/models").then(r => r.json()).then(data => {
         if (cancelled) return
         const avail = data.available || []
-        if (avail.length > 0) { setModels(avail); setCurrentModel(data.current || "") }
+        if (avail.length > 0) { setModels(avail); setModelState(data.current || "") }
         else setTimeout(poll, 3000) // retry until a process is spawned
       }).catch(() => { if (!cancelled) setTimeout(poll, 3000) })
     }
