@@ -223,7 +223,7 @@ async function spawnProcess(deckId: string, agentName: string, adapter?: AgentCo
   })
 
   child.stderr!.setEncoding("utf-8")
-  child.stderr!.on("data", (d: string) => console.warn(`[acp:${deckId}] stderr:`, d.trim()))
+  child.stderr!.on("data", (d: string) => console.warn("[acp:%s] stderr: %s", deckId, d.trim()))
 
   child.on("close", () => {
     processes.delete(deckId)
