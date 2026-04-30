@@ -19,11 +19,10 @@
 
 import { ReactNode, useState, useRef, useEffect, useCallback } from "react"
 import { useAuth } from "@/hooks/useAuth"
-import { usePreferences } from "@/hooks/usePreferences"
-import { Layers, ChevronLeft, MessageSquare, CircleUser, LogOut, Bot } from "lucide-react"
+import { Layers, ChevronLeft, MessageSquare, CircleUser, LogOut, Bot, Settings as SettingsIcon } from "lucide-react"
 import { AgentSettingsDialog } from "@/components/chat/AgentSettingsDialog"
+import { Settings } from "@/components/Settings"
 import { CloudOnly, LocalOnly } from "@/lib/mode"
-
 
 interface AppShellProps {
   children: ReactNode
@@ -43,7 +42,7 @@ export function AppShell({ children, deckName, onBack, chatOpen = false, onChatT
   const menuRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const itemsRef = useRef<(HTMLButtonElement | null)[]>([])
-  const { sendWithEnter, setSendWithEnter } = usePreferences()
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   // Chat pulse: show only until first click
   const [chatSeen, setChatSeen] = useState(true)
@@ -184,18 +183,16 @@ export function AppShell({ children, deckName, onBack, chatOpen = false, onChatT
 
                 <div className="my-1 border-t border-white/[0.06]" />
 
-                {/* Preferences */}
+                {/* Settings */}
                 <button
                   ref={el => { itemsRef.current[0] = el }}
                   role="menuitem"
-                  onClick={() => setSendWithEnter(!sendWithEnter)}
-                  className="w-full flex items-center justify-between px-3.5 py-2 text-[12px] font-medium text-foreground/70 hover:bg-white/[0.06] transition-colors menu-item-stagger"
+                  onClick={() => { closeMenu(); setSettingsOpen(true) }}
+                  className="w-full flex items-center gap-2 px-3.5 py-2 text-[12px] font-medium text-foreground/70 hover:bg-white/[0.06] transition-colors menu-item-stagger"
                   style={{ "--stagger": "0ms" } as React.CSSProperties}
                 >
-                  <span>Send with Enter</span>
-                  <span className={`w-8 h-[18px] rounded-full flex items-center px-0.5 transition-colors ${sendWithEnter ? "bg-brand-teal justify-end" : "bg-white/10 justify-start"}`}>
-                    <span className="w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-all duration-200" />
-                  </span>
+                  <SettingsIcon className="h-3.5 w-3.5" />
+                  <span>Settings</span>
                 </button>
 
                 <div className="my-1 border-t border-white/[0.06]" />
@@ -242,6 +239,8 @@ export function AppShell({ children, deckName, onBack, chatOpen = false, onChatT
       <LocalOnly>
         <AgentSettingsDialog open={showAgentSettings} onClose={() => setShowAgentSettings(false)} />
       </LocalOnly>
+
+      <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   )
 }

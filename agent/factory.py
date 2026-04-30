@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 """Unified agent factory: assembles MCP clients, model, tools, and prompt into a Strands Agent."""
 
+import json
 import logging
 import os
 
@@ -29,6 +30,30 @@ from tools.web_tools import web_fetch
 
 logger = logging.getLogger("sdpm.agent")
 
+_ALLOWED_MODEL_IDS: set[str] = set(json.loads(os.environ.get("ALLOWED_MODEL_IDS", "[]")))
+_DEFAULT_MODEL_ID: str = os.environ.get("MODEL_ID", "global.anthropic.claude-sonnet-4-6")
+
+
+def _resolve_model_id(requested: str | None) -> str:
+    """Resolve the effective Bedrock model ID for this invocation.
+
+    Resolution order:
+        1. If the allowed list is empty (feature not enabled),
+           ignore requested and return the default.
+        2. If requested is in the allowed list, use it.
+        3. Otherwise, use the default (log warning if requested was present but stale).
+    """
+    if not _ALLOWED_MODEL_IDS:
+        if requested:
+            logger.warning("modelId %r received but allowed list is empty; feature not enabled", requested)
+        return _DEFAULT_MODEL_ID
+    if requested and requested in _ALLOWED_MODEL_IDS:
+        return requested
+    if requested:
+        logger.warning("Requested modelId %r not in allowed list; falling back to default", requested)
+    return _DEFAULT_MODEL_ID
+
+
 _MCP_FACTORIES = [
     lambda jwt_token: mcp_agentcore_runtime(jwt_token=jwt_token),
     lambda jwt_token: mcp_aws_knowledge(),
@@ -40,7 +65,7 @@ _MCP_FACTORIES = [
 # Unified factory
 # ---------------------------------------------------------------------------
 
-def create_agent(mode: str, user_id: str, session_id: str, jwt_token: str) -> tuple[Agent, list[dict]]:
+def create_agent(mode: str, user_id: str, session_id: str, jwt_token: str, model_id: str | None = None, composer_model_id: str | None = None) -> tuple[Agent, list[dict]]:
     """Create a Strands Agent for the given mode.
 
     Returns:
@@ -64,7 +89,7 @@ def create_agent(mode: str, user_id: str, session_id: str, jwt_token: str) -> tu
 
     # Models
     model = BedrockModel(
-        model_id=os.environ.get("MODEL_ID", "global.anthropic.claude-sonnet-4-6"),
+        model_id=_resolve_model_id(model_id),
         temperature=0.1,
         cache_config=CacheConfig(strategy="auto"),
     )
@@ -85,8 +110,9 @@ def create_agent(mode: str, user_id: str, session_id: str, jwt_token: str) -> tu
     tools = [*mcp_servers, web_fetch, hearing]
     composer_mcp_factory = None
     if cfg.use_composer:
+        resolved_composer_id = _resolve_model_id(composer_model_id) if composer_model_id else os.environ.get("COMPOSER_MODEL_ID", os.environ.get("MODEL_ID", "global.anthropic.claude-sonnet-4-6"))
         composer_model = BedrockModel(
-            model_id=os.environ.get("COMPOSER_MODEL_ID", os.environ.get("MODEL_ID", "global.anthropic.claude-sonnet-4-6")),
+            model_id=resolved_composer_id,
             temperature=0.1,
             cache_config=CacheConfig(strategy="auto"),
             boto_client_config=BotocoreConfig(

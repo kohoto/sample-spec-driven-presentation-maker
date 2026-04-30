@@ -16,6 +16,8 @@ interface Prefs {
   fetchWebImages: boolean
   parallelAgents: boolean
   agentMode: "spec" | "vibe"
+  modelId?: string
+  composerModelId?: string
 }
 
 const DEFAULTS: Prefs = { sendWithEnter: false, viewMode: "full", fetchWebImages: false, parallelAgents: false, agentMode: "spec" }
@@ -60,5 +62,9 @@ export function usePreferences() {
     setParallelAgents: useCallback((v: boolean) => update({ parallelAgents: v }), [update]),
     agentMode: prefs.agentMode,
     setAgentMode: useCallback((v: "spec" | "vibe") => update({ agentMode: v }), [update]),
+    modelId: prefs.modelId,
+    setModelId: useCallback((v: string | undefined) => update({ modelId: v }), [update]),
+    composerModelId: prefs.composerModelId,
+    setComposerModelId: useCallback((v: string | undefined) => update({ composerModelId: v }), [update]),
   }
 }

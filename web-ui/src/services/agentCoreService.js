@@ -7,8 +7,34 @@
  */
 
 import * as parser from './strandsParser.js';
+import { getAllowedModels } from "@/lib/allowedModels";
 
 const IS_LOCAL = process.env.NEXT_PUBLIC_MODE === 'local';
+
+// Read the user's selected model from localStorage, validated against the allowed list.
+function readSelectedModelId() {
+  try {
+    const allowed = getAllowedModels();
+    if (allowed.length === 0) return undefined;
+    const prefs = JSON.parse(localStorage.getItem("sdpm-prefs") || "{}");
+    if (prefs.modelId && allowed.some((m) => m.modelId === prefs.modelId)) {
+      return prefs.modelId;
+    }
+  } catch { /* ignore */ }
+  return undefined;
+}
+
+function readSelectedComposerModelId() {
+  try {
+    const allowed = getAllowedModels();
+    if (allowed.length === 0) return undefined;
+    const prefs = JSON.parse(localStorage.getItem("sdpm-prefs") || "{}");
+    if (prefs.composerModelId && allowed.some((m) => m.modelId === prefs.composerModelId)) {
+      return prefs.composerModelId;
+    }
+  } catch { /* ignore */ }
+  return undefined;
+}
 
 // Generate a UUID
 const generateId = () => {
@@ -70,11 +96,15 @@ export const invokeAgentCore = async (query, sessionId, onStreamUpdate, accessTo
     }
 
     // Create the payload
+    const selectedModelId = readSelectedModelId();
+    const selectedComposerModelId = readSelectedComposerModelId();
     const payload = {
       prompt: query,
       runtimeSessionId: sessionId,
       userId: userId,
       mode: mode || "separated",
+      ...(selectedModelId ? { modelId: selectedModelId } : {}),
+      ...(selectedComposerModelId ? { composerModelId: selectedComposerModelId } : {}),
     }
 
     const response = await fetch(url, {

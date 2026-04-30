@@ -82,7 +82,16 @@ async def agent_stream(payload, context):
     try:
         os.environ["_CURRENT_SESSION_ID"] = session_id
         mode = payload.get("mode", "single")
-        agent, mcp_status = create_agent(mode=mode, user_id=user_id, session_id=session_id, jwt_token=jwt_token)
+        requested_model_id = payload.get("modelId") if isinstance(payload, dict) else None
+        requested_composer_model_id = payload.get("composerModelId") if isinstance(payload, dict) else None
+        agent, mcp_status = create_agent(
+            mode=mode,
+            user_id=user_id,
+            session_id=session_id,
+            jwt_token=jwt_token,
+            model_id=requested_model_id,
+            composer_model_id=requested_composer_model_id,
+        )
 
         yield {"mcp_status": mcp_status}
 
