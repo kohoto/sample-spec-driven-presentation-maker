@@ -13,21 +13,18 @@ from pathlib import Path
 from typing import Any
 
 
-def _get_templates_dirs() -> list[Path]:
+def get_templates_dirs() -> list[Path]:
     """Return ordered list of directories to search for bundled/user-local templates.
 
     Search order (first match wins):
-      1. $SDPM_TEMPLATES_DIR — colon-separated list (same semantics as PATH)
-      2. ~/.config/sdpm/templates/ — XDG-style user-local location
+      1. $SDPM_TEMPLATES_DIR — os.pathsep-separated list (same semantics as PATH)
+      2. get_user_config_dir()/templates/ — user-local templates
       3. Package-bundled templates/ directory (skill/templates/)
     """
-    dirs: list[Path] = []
-    env_value = os.environ.get("SDPM_TEMPLATES_DIR")
-    if env_value:
-        dirs.extend(Path(p).expanduser() for p in env_value.split(os.pathsep) if p)
-    dirs.append(Path.home() / ".config" / "sdpm" / "templates")
-    dirs.append(Path(__file__).parent.parent / "templates")
-    return dirs
+    from sdpm.config import _get_resource_dirs
+
+    bundled = Path(__file__).parent.parent / "templates"
+    return _get_resource_dirs("SDPM_TEMPLATES_DIR", "templates", bundled)
 
 
 def _find_template_in_dirs(name: str, templates_dirs: list[Path]) -> Path | None:
@@ -132,7 +129,7 @@ def init(
     if template:
         template_src = Path(template).expanduser()
         if not template_src.exists():
-            found = _find_template_in_dirs(str(template), _get_templates_dirs())
+            found = _find_template_in_dirs(str(template), get_templates_dirs())
             if found is not None:
                 template_src = found
         if template_src.exists():
@@ -185,7 +182,7 @@ def _resolve_config(json_path: str | Path) -> BuildConfig:
         raise FileNotFoundError(f"Slides JSON not found: {json_path}")
 
     data = read_json(input_path)
-    templates_dirs = _get_templates_dirs()
+    templates_dirs = get_templates_dirs()
     warnings: list[str] = []
 
     template_file, custom = _resolve_template(data, str(input_path), templates_dirs)

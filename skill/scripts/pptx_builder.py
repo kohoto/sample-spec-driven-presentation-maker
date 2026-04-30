@@ -58,14 +58,14 @@ from sdpm.utils.text import normalize_spacing, parse_styled_text  # noqa: F401
 
 def _resolve_template(data, input_path):
     """Resolve template path: presentation.json "template" → templates/ lookup → error."""
-    from sdpm.api import _find_template_in_dirs, _get_templates_dirs
+    from sdpm.api import _find_template_in_dirs, get_templates_dirs
 
     if data.get("template"):
         base_dir = Path(input_path).parent if input_path and input_path != "-" else Path(".")
         template = base_dir / data["template"]
         if template.exists():
             return template, True
-        found = _find_template_in_dirs(data["template"], _get_templates_dirs())
+        found = _find_template_in_dirs(data["template"], get_templates_dirs())
         if found is not None:
             return found, True
 
@@ -189,10 +189,10 @@ def cmd_list_templates(args):
     in addition to the package-bundled ones. User-local templates shadow bundled
     templates with the same stem.
     """
-    from sdpm.api import _get_templates_dirs
+    from sdpm.api import get_templates_dirs
 
     seen: dict[str, Path] = {}
-    for d in _get_templates_dirs():
+    for d in get_templates_dirs():
         if not d.exists():
             continue
         for t in sorted(d.glob("*.pptx")):
@@ -693,9 +693,9 @@ def cmd_analyze_template(args):
 
     template_path = Path(args.input).resolve()
     if not template_path.exists():
-        from sdpm.api import _find_template_in_dirs, _get_templates_dirs
+        from sdpm.api import _find_template_in_dirs, get_templates_dirs
 
-        found = _find_template_in_dirs(args.input, _get_templates_dirs())
+        found = _find_template_in_dirs(args.input, get_templates_dirs())
         if found is not None:
             template_path = found
         else:
