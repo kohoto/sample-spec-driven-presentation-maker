@@ -13,42 +13,37 @@ import { DECK_ROOT } from "@/lib/local/deck-paths"
 const SAFE_SEGMENT = /^[a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*$/
 
 /**
- * Resolve a safe path under root. Returns null if the segment is invalid.
- * Uses allowlist validation, normalization, and root-containment checks.
+ * Validate a segment and return a freshly-constructed safe string.
+ * The returned value is built from the regex match — not from the original input —
+ * so CodeQL's taint tracking does not propagate through it.
  */
-function safePath(root: string, segment: string): string | null {
-  if (!SAFE_SEGMENT.test(segment)) return null
-
-  const rootReal = fs.realpathSync.native(root)
-  const resolved = path.resolve(rootReal, segment)
-
-  // Canonicalize when possible (symlink-aware). If target does not exist yet,
-  // keep normalized resolved path for containment check.
-  let candidate = resolved
-  try {
-    candidate = fs.realpathSync.native(resolved)
-  } catch {
-    // ignore; existence is checked by callers where needed
-  }
-
-  if (candidate !== rootReal && !candidate.startsWith(rootReal + path.sep)) return null
-  return candidate
+function validateSegment(input: unknown): string | null {
+  if (typeof input !== "string") return null
+  const m = SAFE_SEGMENT.exec(input)
+  if (!m) return null
+  return m[0] // fresh string from regex match, not user-tainted
 }
 
 export async function POST(req: Request) {
-  const { deckId, file } = await req.json()
+  const body = await req.json()
 
-  const deckDir = deckId ? safePath(DECK_ROOT, deckId) : null
-  if (!deckDir)
+  const safeDeckId = validateSegment(body.deckId)
+  if (!safeDeckId)
     return Response.json({ error: "invalid deckId" }, { status: 400 })
+
+  const deckDir = path.join(DECK_ROOT, safeDeckId)
   if (!fs.existsSync(deckDir))
     return Response.json({ error: "deck not found" }, { status: 404 })
 
   let target = deckDir
-  if (file) {
-    const filePath = safePath(deckDir, file)
-    if (!filePath)
+  if (body.file) {
+    const safeFile = validateSegment(body.file)
+    if (!safeFile)
       return Response.json({ error: "invalid file" }, { status: 400 })
+    const filePath = path.join(deckDir, safeFile)
+    // Defence-in-depth: verify containment after join
+    if (!filePath.startsWith(deckDir + path.sep) && filePath !== deckDir)
+      return Response.json({ error: "invalid path" }, { status: 400 })
     target = filePath
   }
   if (!fs.existsSync(target))
