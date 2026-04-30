@@ -95,11 +95,17 @@ def list_asset_sources(skill_dir: Path) -> dict[str, Any]:
 
 
 def list_styles(skill_dir: Path) -> dict[str, Any]:
-    """List available design styles and open gallery in browser."""
-    from sdpm.reference import list_styles as _list_styles, open_styles_gallery
-    styles_dir = skill_dir / "references" / "examples" / "styles"
-    open_styles_gallery(styles_dir)
-    return {"styles": _list_styles(styles_dir)}
+    """List available design styles and open gallery in browser.
+
+    Searches user-local styles directory (``~/.config/sdpm/styles/``) in
+    addition to the package-bundled styles. User-local entries shadow
+    bundled ones with the same name.
+    """
+    from sdpm.api import get_styles_dirs
+    from sdpm.reference import list_styles_merged, open_styles_gallery
+    styles_dirs = get_styles_dirs()
+    open_styles_gallery(styles_dirs)
+    return {"styles": list_styles_merged(styles_dirs)}
 
 
 def read_examples(names: list[str], skill_dir: Path) -> dict[str, Any]:

@@ -27,6 +27,33 @@ def get_templates_dirs() -> list[Path]:
     return _get_resource_dirs("SDPM_TEMPLATES_DIR", "templates", bundled)
 
 
+def get_styles_dirs() -> list[Path]:
+    """Return ordered list of directories to search for style HTMLs.
+
+    Search order (first match wins):
+      1. $SDPM_STYLES_DIR — os.pathsep-separated list (same semantics as PATH)
+      2. get_user_config_dir()/styles/ — user-local styles
+      3. Package-bundled references/examples/styles/ directory
+    """
+    from sdpm.config import _get_resource_dirs
+    from sdpm.reference import BUNDLED_STYLES_DIR
+
+    return _get_resource_dirs("SDPM_STYLES_DIR", "styles", BUNDLED_STYLES_DIR)
+
+
+def _find_style_in_dirs(name: str, styles_dirs: list[Path]) -> Path | None:
+    """Search for a style HTML by name across the given directories.
+
+    Returns the first existing path, or None if not found.
+    """
+    filename = name if name.endswith(".html") else name + ".html"
+    for d in styles_dirs:
+        candidate = d / filename
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def _find_template_in_dirs(name: str, templates_dirs: list[Path]) -> Path | None:
     """Search for a template by name across the given directories.
 

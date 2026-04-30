@@ -218,7 +218,7 @@ def cmd_search_patterns(args):
 
 def cmd_examples(args):
     """List or show design examples (components/patterns/styles)."""
-    from sdpm.reference import list_styles, open_styles_gallery, read_docs
+    from sdpm.reference import open_styles_gallery, read_docs
 
     examples_dir = Path(__file__).parent.parent / "references" / "examples"
     if not examples_dir.exists():
@@ -235,17 +235,16 @@ def cmd_examples(args):
         base = parts[0]
         sub = parts[1] if len(parts) > 1 else None
 
-        # styles/ directory
+        # styles/ directory — searches user-local + bundled
         if base == "styles":
-            styles_dir = examples_dir / "styles"
-            if not styles_dir.exists():
-                print("# Not found: styles/", file=sys.stderr)
-                continue
+            from sdpm.api import get_styles_dirs
+            from sdpm.reference import list_styles_merged
+            styles_dirs = get_styles_dirs()
             if sub is None:
-                for s in list_styles(styles_dir):
+                for s in list_styles_merged(styles_dirs):
                     print(f"  styles/{s['name']}  {s['description']}")
                 if not args.no_browse:
-                    open_styles_gallery(styles_dir)
+                    open_styles_gallery(styles_dirs)
             else:
                 print("# Copy a style to your project: cp references/examples/styles/{name}.html specs/art-direction.html", file=sys.stderr)
             continue
