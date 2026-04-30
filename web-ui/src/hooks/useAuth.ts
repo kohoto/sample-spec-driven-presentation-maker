@@ -30,15 +30,23 @@ const LOCAL_AUTH = {
   token: "local",
 }
 
+/**
+ * Wrapper that always calls useOidcAuth (satisfying rules-of-hooks)
+ * but catches throws when OidcAuthProvider is absent (local mode).
+ */
+function useSafeOidcAuth(): ReturnType<typeof useOidcAuth> | undefined {
+  try {
+    return useOidcAuth()
+  } catch {
+    return undefined
+  }
+}
+
 export function useAuth() {
-  // useOidcAuth() is called unconditionally to satisfy React's rules of hooks.
-  // In local mode, OidcAuthProvider is absent so we suppress the console.warn
-  // and fall back to LOCAL_AUTH below.
-  const origWarn = IS_LOCAL ? console.warn : null
-  if (IS_LOCAL) console.warn = () => {}
-  // eslint-disable-next-line react-hooks/rules-of-hooks -- called unconditionally; IS_LOCAL is a build-time constant
-  const oidcAuth = useOidcAuth()
-  if (origWarn) console.warn = origWarn
+  // useOidcAuth() must be called unconditionally (React rules of hooks).
+  // In local mode OidcAuthProvider is absent; the hook may throw, so we
+  // wrap it in a helper that catches and returns undefined.
+  const oidcAuth = useSafeOidcAuth()
 
   const [authConfig, setAuthConfig] = useState<CognitoAuthConfig | null>(null)
 
