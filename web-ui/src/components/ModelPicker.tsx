@@ -91,11 +91,14 @@ export function ModelPicker({
       <PopoverContent
         className="w-[var(--radix-popover-trigger-width)] p-0"
         align="start"
+        side="bottom"
         sideOffset={6}
+        collisionPadding={16}
+        avoidCollisions={true}
       >
         <Command>
           <CommandInput placeholder="Search models..." />
-          <CommandList>
+          <CommandList className="max-h-[min(320px,var(--radix-popover-content-available-height))]">
             <CommandEmpty>No model found.</CommandEmpty>
             <CommandGroup>
               {inheritLabel !== undefined && (

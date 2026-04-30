@@ -55,12 +55,12 @@ export function Settings({ open, onOpenChange }: SettingsProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:w-[460px] overflow-y-auto p-0">
-        <SheetHeader className="px-5 pt-5 pb-3">
+      <SheetContent side="right" className="w-[400px] sm:w-[460px] p-0 flex flex-col">
+        <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
           <SheetTitle className="text-lg">Settings</SheetTitle>
         </SheetHeader>
 
-        <div className="flex flex-col gap-4 px-5 pb-6">
+        <div className="flex flex-col gap-4 px-5 pb-6 overflow-y-auto flex-1 min-h-0">
           {/* ── Models (per-agent) ── */}
           {allowed.length > 0 && (
             <section
