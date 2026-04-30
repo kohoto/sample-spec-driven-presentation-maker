@@ -31,19 +31,14 @@ const LOCAL_AUTH = {
 }
 
 export function useAuth() {
-  // In local mode, OidcAuthProvider is absent so useOidcAuth() returns undefined.
-  // We call it unconditionally to satisfy React's rules of hooks, then discard the result.
-  // Suppress the console.warn from react-oidc-context in local mode.
-  let auth: ReturnType<typeof useOidcAuth> | undefined
+  // useOidcAuth() is called unconditionally to satisfy React's rules of hooks.
+  // In local mode, OidcAuthProvider is absent so we suppress the console.warn
+  // and fall back to LOCAL_AUTH below.
   const origWarn = IS_LOCAL ? console.warn : null
   if (IS_LOCAL) console.warn = () => {}
-  try {
-    auth = useOidcAuth()
-  } catch {
-    auth = undefined
-  } finally {
-    if (origWarn) console.warn = origWarn
-  }
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- called unconditionally; IS_LOCAL is a build-time constant
+  const oidcAuth = useOidcAuth()
+  if (origWarn) console.warn = origWarn
 
   const [authConfig, setAuthConfig] = useState<CognitoAuthConfig | null>(null)
 
@@ -55,14 +50,14 @@ export function useAuth() {
   }, [])
 
   // Local mode: always return mock auth
-  if (IS_LOCAL || !auth) {
+  if (IS_LOCAL || !oidcAuth) {
     return LOCAL_AUTH
   }
 
   return {
-    isAuthenticated: auth.isAuthenticated,
-    user: auth.user,
-    signIn: auth.signinRedirect,
+    isAuthenticated: oidcAuth.isAuthenticated,
+    user: oidcAuth.user,
+    signIn: oidcAuth.signinRedirect,
     signOut: () => {
       const clientId = authConfig?.client_id || process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || ""
       const logoutUri =
@@ -70,15 +65,15 @@ export function useAuth() {
         process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI ||
         "http://localhost:3000"
 
-      auth!.signoutRedirect({
+      oidcAuth!.signoutRedirect({
         extraQueryParams: {
           client_id: clientId,
           logout_uri: logoutUri,
         },
       })
     },
-    isLoading: auth.isLoading,
-    error: auth.error,
-    token: auth.user?.id_token,
+    isLoading: oidcAuth.isLoading,
+    error: oidcAuth.error,
+    token: oidcAuth.user?.id_token,
   }
 }
