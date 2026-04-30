@@ -65,8 +65,6 @@ export function SlideCarousel({ slides, defsUrl, deckId, deckName, pptxUrl, isLo
   }
   // eslint-disable-next-line no-console
   if (dupUrls.length) console.warn("[SlideCarousel] same composeUrl used for multiple slides:", dupUrls, urlBySlug)
-  // eslint-disable-next-line no-console
-  console.log("[SlideCarousel] slug→url:", slidesWithPreview.map(s => `${s.slug}: ${s.composeUrl?.split("/").pop()?.split("?")[0]}`))
   const auth = useAuth()
   const { viewMode, setViewMode } = usePreferences()
   const containerRef = useRef<HTMLDivElement>(null)

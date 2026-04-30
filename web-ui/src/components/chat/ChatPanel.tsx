@@ -800,9 +800,6 @@ export const ChatPanel = forwardRef<ChatPanelHandle, ChatPanelProps>(function Ch
           }
 
           // Tool result (completed) — detect deckId from any tool's result
-          if (toolUseData?.completed) {
-            console.log("[chat] tool completed:", toolName, "result keys:", Object.keys(toolUseData.result || {}), "deckId:", toolUseData.result?.deckId)
-          }
           if (toolUseData?.completed && toolUseData?.result?.deckId && onDeckCreated) {
             // Link chat session to deck for history restore
             const resultDeckId = String(toolUseData.result.deckId)
