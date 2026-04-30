@@ -39,10 +39,17 @@ function ModelSelector() {
   const [models, setModels] = useState<AcpModel[]>([])
 
   useEffect(() => {
-    fetch("/api/agent/models").then(r => r.json()).then(data => {
-      setModels(data.available || [])
-      setModelState(data.current || "")
-    }).catch(() => {})
+    let cancelled = false
+    const poll = () => {
+      fetch("/api/agent/models").then(r => r.json()).then(data => {
+        if (cancelled) return
+        const avail = data.available || []
+        if (avail.length > 0) { setModels(avail); setModelState(data.current || "") }
+        else setTimeout(poll, 3000) // retry until a process is spawned
+      }).catch(() => { if (!cancelled) setTimeout(poll, 3000) })
+    }
+    poll()
+    return () => { cancelled = true }
   }, [])
 
   if (models.length === 0) return null
@@ -92,22 +99,6 @@ export function ChatPanelShell({
   const internalChatRef = useRef<ChatPanelHandle>(null)
   const chatRef = externalChatRef || internalChatRef
   const panelRef = useRef<HTMLElement>(null)
-
-  // Fetch models; retry until available (first process populates model list)
-  useEffect(() => {
-    if (!IS_LOCAL) return
-    let cancelled = false
-    const poll = () => {
-      fetch("/api/agent/models").then(r => r.json()).then(data => {
-        if (cancelled) return
-        const avail = data.available || []
-        if (avail.length > 0) { setModels(avail); setModelState(data.current || "") }
-        else setTimeout(poll, 3000) // retry until a process is spawned
-      }).catch(() => { if (!cancelled) setTimeout(poll, 3000) })
-    }
-    poll()
-    return () => { cancelled = true }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // When Panel A creates a deck, store the deckId so we know Panel A "owns" it
   const [panelADeckId, setPanelADeckId] = useState<string | null>(null)
