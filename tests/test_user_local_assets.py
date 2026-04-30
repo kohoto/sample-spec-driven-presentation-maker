@@ -200,6 +200,32 @@ def test_user_local_coexists_with_builtin(
 # ---------------------------------------------------------------------------
 
 
+def test_list_sources_includes_user_local_description(
+    isolated_user_config: Path,
+) -> None:
+    """list_sources picks up description from user-local manifest (bug fix)."""
+    from sdpm.assets import invalidate_manifest_cache, list_sources
+
+    source_dir = isolated_user_config / "assets" / "my-team"
+    _write_manifest(
+        source_dir,
+        "my-team",
+        [{"name": "A", "file": "a.svg", "category": "c", "type": "service"}],
+    )
+    # Add description at manifest-level (not per-icon)
+    import json as _json
+    manifest_path = source_dir / "manifest.json"
+    data = _json.loads(manifest_path.read_text())
+    data["description"] = "My team's custom icons"
+    manifest_path.write_text(_json.dumps(data))
+
+    invalidate_manifest_cache()
+    sources = list_sources()
+    my_team = next((s for s in sources if s["source"] == "my-team"), None)
+    assert my_team is not None
+    assert my_team["description"] == "My team's custom icons"
+
+
 def test_list_sources_includes_extra_source(
     isolated_user_config: Path, tmp_path: Path
 ) -> None:

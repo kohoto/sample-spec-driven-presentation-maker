@@ -383,9 +383,21 @@ def list_sources() -> list[dict]:
     for item in manifests:
         src = item.get("_source", "unknown")
         counts[src] = counts.get(src, 0) + 1
-    # Load descriptions from manifest files
+    # Load descriptions from manifest files.
+    # Order matches _load_manifests(): built-in as base, then user-local and
+    # extra_sources override (so user-visible description reflects the source
+    # that actually wins on name collision).
     if ASSETS_DIR.exists():
         for manifest_path in sorted(ASSETS_DIR.glob("*/manifest.json")):
+            with open(manifest_path) as f:
+                data = json.load(f)
+            source = data.get("source", manifest_path.parent.name)
+            if "description" in data:
+                descriptions[source] = data["description"]
+    # User-local: get_user_config_dir()/assets/*/manifest.json
+    user_assets = get_user_config_dir() / "assets"
+    if user_assets.exists():
+        for manifest_path in sorted(user_assets.glob("*/manifest.json")):
             with open(manifest_path) as f:
                 data = json.load(f)
             source = data.get("source", manifest_path.parent.name)
