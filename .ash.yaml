@@ -55,6 +55,21 @@ global_settings:
         at CDK synth time. Hardcoded cp commands, no user input, build-time only.
       expiration: "2027-03-29"
 
+    - rule_id: "javascript.lang.security.detect-child-process.detect-child-process"
+      path: "web-ui/src/lib/local/acp-process.ts"
+      reason: >
+        spawn launches the local ACP agent process on the developer's machine.
+        Command path comes from hardcoded config, not user input. Local mode only.
+      expiration: "2027-03-29"
+
+    - rule_id: "javascript.lang.security.detect-child-process.detect-child-process"
+      path: "web-ui/src/app/api/open/route.ts"
+      reason: >
+        execFile opens a local file with the OS default handler (open/xdg-open).
+        Path is allowlist-validated via SAFE_SEGMENT regex. Local mode only,
+        runs on developer's machine.
+      expiration: "2027-03-29"
+
     # --- Container binding to 0.0.0.0 ---
     # MCP server runs inside a Fargate container behind AgentCore Runtime.
     # Binding to all interfaces is required for container networking.
