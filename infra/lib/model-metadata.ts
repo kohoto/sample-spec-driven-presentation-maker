@@ -22,6 +22,10 @@ export const MODEL_METADATA: Record<string, ModelMetadata> = {
     displayName: "Claude Opus 4.7",
     description: "Highest quality, complex tasks",
   },
+  "global.anthropic.claude-opus-4-6-v1": {
+    displayName: "Claude Opus 4.6",
+    description: "High quality, adaptive thinking",
+  },
   "global.anthropic.claude-sonnet-4-6": {
     displayName: "Claude Sonnet 4.6",
     description: "Balanced quality and speed",
@@ -50,14 +54,9 @@ export const MODEL_METADATA: Record<string, ModelMetadata> = {
     composable: false,
   },
   // --- Amazon Nova ---
-  "us.amazon.nova-pro-v1:0": {
-    displayName: "Nova Pro",
-    description: "Amazon's multimodal model",
-    composable: false,
-  },
-  "us.amazon.nova-lite-v1:0": {
-    displayName: "Nova Lite",
-    description: "Lightweight, fastest and cheapest",
+  "us.amazon.nova-2-lite-v1:0": {
+    displayName: "Nova 2 Lite",
+    description: "Amazon's 2nd gen, fast and economical",
     composable: false,
   },
 };

@@ -73,8 +73,12 @@ CLAUDE_HAIKU = ModelProfile(temperature=0.1, cache_strategy="auto", compose_capa
 # passing it triggers ``ValidationException: temperature is deprecated``.
 CLAUDE_EXTENDED_THINKING = ModelProfile(temperature=None, cache_strategy="auto")
 
-# Amazon Nova — supports prompt caching.
-NOVA_DEFAULT = ModelProfile(temperature=0.7, cache_strategy="auto", compose_capable=False)
+# Claude with adaptive thinking (e.g. Opus 4.6). Temperature=1 is required
+# when reasoning is enabled; Strands handles this internally.
+CLAUDE_ADAPTIVE_THINKING = ModelProfile(temperature=1.0, cache_strategy="auto")
+
+# Amazon Nova 2 — supports prompt caching.
+NOVA_2_DEFAULT = ModelProfile(temperature=0.7, cache_strategy="auto", compose_capable=False)
 
 # DeepSeek — prompt caching not supported on Bedrock at time of writing.
 DEEPSEEK_DEFAULT = ModelProfile(temperature=0.6, cache_strategy="none", compose_capable=False)
@@ -100,11 +104,11 @@ _DEFAULT = CLAUDE_STANDARD
 MODEL_PROFILES: dict[str, ModelProfile] = {
     # Anthropic Claude
     "global.anthropic.claude-opus-4-7": CLAUDE_EXTENDED_THINKING,
+    "global.anthropic.claude-opus-4-6-v1": CLAUDE_ADAPTIVE_THINKING,
     "global.anthropic.claude-sonnet-4-6": CLAUDE_STANDARD,
     "global.anthropic.claude-haiku-4-5-20251001-v1:0": CLAUDE_HAIKU,
     # Amazon Nova
-    "us.amazon.nova-pro-v1:0": NOVA_DEFAULT,
-    "us.amazon.nova-lite-v1:0": NOVA_DEFAULT,
+    "us.amazon.nova-2-lite-v1:0": NOVA_2_DEFAULT,
     # DeepSeek
     "deepseek.v3.2": DEEPSEEK_DEFAULT,
     # Qwen
