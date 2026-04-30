@@ -29,8 +29,10 @@ interface AgentStackProps extends cdk.StackProps {
   oidcDiscoveryUrl: string;
   /** Allowed client IDs for JWT authorizer. */
   allowedClients: string[];
-  /** Bedrock model ID from config.yaml. Overridable via CDK context -c modelId=... */
-  modelId?: string;
+  /** Bedrock model ID for the chat (conversation/planning) task. */
+  chatModelId?: string;
+  /** Bedrock model ID for the create (generation) task. */
+  createModelId?: string;
   /** Allowed model IDs for per-user model switching; empty = feature disabled. */
   allowedModelIds: string[];
 }
@@ -195,7 +197,8 @@ export class AgentStack extends cdk.Stack {
       },
       environmentVariables: {
         MCP_RUNTIME_ARN: props.mcpRuntimeArn,
-        MODEL_ID: this.node.tryGetContext("modelId") || props.modelId || "global.anthropic.claude-sonnet-4-6",
+        CHAT_MODEL_ID: this.node.tryGetContext("chatModelId") || props.chatModelId || "global.anthropic.claude-sonnet-4-6",
+        CREATE_MODEL_ID: this.node.tryGetContext("createModelId") || props.createModelId || props.chatModelId || "global.anthropic.claude-sonnet-4-6",
         ALLOWED_MODEL_IDS: JSON.stringify(props.allowedModelIds ?? []),
         MEMORY_ID: memoryId,
         DECKS_TABLE: props.table.tableName,

@@ -10,7 +10,6 @@ from botocore.config import Config as BotocoreConfig
 from strands import Agent
 from strands.hooks.events import AfterInvocationEvent, AfterToolCallEvent
 from strands.models import BedrockModel
-from strands.models.bedrock import CacheConfig
 
 from cost_logger import log_usage
 from mcp_clients import (
@@ -21,6 +20,7 @@ from mcp_clients import (
     mcp_aws_pricing,
 )
 from composition import resolve_parts
+from model_profiles import build_model_kwargs, MODEL_PROFILES
 from modes import MODES
 from modes.separated.composer import make_compose_slides
 from resilience import LoopGuard
@@ -31,27 +31,28 @@ from tools.web_tools import web_fetch
 logger = logging.getLogger("sdpm.agent")
 
 _ALLOWED_MODEL_IDS: set[str] = set(json.loads(os.environ.get("ALLOWED_MODEL_IDS", "[]")))
-_DEFAULT_MODEL_ID: str = os.environ.get("MODEL_ID", "global.anthropic.claude-sonnet-4-6")
+_DEFAULT_CHAT_MODEL_ID: str = os.environ.get("CHAT_MODEL_ID", "global.anthropic.claude-sonnet-4-6")
+_DEFAULT_CREATE_MODEL_ID: str = os.environ.get("CREATE_MODEL_ID", _DEFAULT_CHAT_MODEL_ID)
 
 
-def _resolve_model_id(requested: str | None) -> str:
+def _resolve_model_id(requested: str | None, default: str) -> str:
     """Resolve the effective Bedrock model ID for this invocation.
 
     Resolution order:
         1. If the allowed list is empty (feature not enabled),
-           ignore requested and return the default.
+           ignore requested and return *default*.
         2. If requested is in the allowed list, use it.
-        3. Otherwise, use the default (log warning if requested was present but stale).
+        3. Otherwise, use *default* (log warning if requested was present but stale).
     """
     if not _ALLOWED_MODEL_IDS:
         if requested:
             logger.warning("modelId %r received but allowed list is empty; feature not enabled", requested)
-        return _DEFAULT_MODEL_ID
+        return default
     if requested and requested in _ALLOWED_MODEL_IDS:
         return requested
     if requested:
-        logger.warning("Requested modelId %r not in allowed list; falling back to default", requested)
-    return _DEFAULT_MODEL_ID
+        logger.warning("Requested modelId %r not in allowed list; falling back to %r", requested, default)
+    return default
 
 
 _MCP_FACTORIES = [
@@ -65,7 +66,7 @@ _MCP_FACTORIES = [
 # Unified factory
 # ---------------------------------------------------------------------------
 
-def create_agent(mode: str, user_id: str, session_id: str, jwt_token: str, model_id: str | None = None, composer_model_id: str | None = None) -> tuple[Agent, list[dict]]:
+def create_agent(mode: str, user_id: str, session_id: str, jwt_token: str, chat_model_id: str | None = None, create_model_id: str | None = None) -> tuple[Agent, list[dict]]:
     """Create a Strands Agent for the given mode.
 
     Returns:
@@ -87,12 +88,15 @@ def create_agent(mode: str, user_id: str, session_id: str, jwt_token: str, model
             region_name=region,
         )
 
-    # Models
-    model = BedrockModel(
-        model_id=_resolve_model_id(model_id),
-        temperature=0.1,
-        cache_config=CacheConfig(strategy="auto"),
-    )
+    # Models — agent uses chat or create model depending on mode
+    if cfg.agent_model == "create":
+        requested_agent = create_model_id
+        default_agent = _DEFAULT_CREATE_MODEL_ID
+    else:
+        requested_agent = chat_model_id
+        default_agent = _DEFAULT_CHAT_MODEL_ID
+    resolved_agent = _resolve_model_id(requested_agent, default_agent)
+    model = BedrockModel(**build_model_kwargs(resolved_agent))
 
     # MCP servers
     mcp_servers = []
@@ -110,11 +114,13 @@ def create_agent(mode: str, user_id: str, session_id: str, jwt_token: str, model
     tools = [*mcp_servers, web_fetch, hearing]
     composer_mcp_factory = None
     if cfg.use_composer:
-        resolved_composer_id = _resolve_model_id(composer_model_id) if composer_model_id else os.environ.get("COMPOSER_MODEL_ID", os.environ.get("MODEL_ID", "global.anthropic.claude-sonnet-4-6"))
+        resolved_create = _resolve_model_id(create_model_id, _DEFAULT_CREATE_MODEL_ID)
+        profile = MODEL_PROFILES.get(resolved_create)
+        if profile and not profile.compose_capable:
+            logger.warning("Model %r is not compose_capable; falling back to %r for create", resolved_create, _DEFAULT_CREATE_MODEL_ID)
+            resolved_create = _DEFAULT_CREATE_MODEL_ID
         composer_model = BedrockModel(
-            model_id=resolved_composer_id,
-            temperature=0.1,
-            cache_config=CacheConfig(strategy="auto"),
+            **build_model_kwargs(resolved_create),
             boto_client_config=BotocoreConfig(
                 user_agent_extra="strands-agents",
                 read_timeout=120,

@@ -25,16 +25,18 @@ features:
 #   global.anthropic.claude-opus-4-6-v1             (all regions, higher cost)
 #   us.anthropic.claude-sonnet-4-5-20250929-v1:0    (US regions only)
 model:
-  modelId: "global.anthropic.claude-sonnet-4-6"
-  # modelId: "global.anthropic.claude-opus-4-6-v1"
+  defaults:
+    chat: "global.anthropic.claude-sonnet-4-6"
+    # chat: "global.anthropic.claude-opus-4-6-v1"
+    create: "global.anthropic.claude-sonnet-4-6"   # omit to inherit from chat
 
   # Per-user model switching in the Settings Sheet.
   # All models are enabled by default. To disable a model for end users,
   # prefix its line with `#`.
   # Each entry must be registered in infra/lib/model-metadata.ts.
-  # The `modelId` above must appear in this list.
+  # Both defaults.chat and defaults.create must appear in this list.
   allowedModelIds:
-    - "global.anthropic.claude-sonnet-4-6"           # recommended (matches modelId)
+    - "global.anthropic.claude-sonnet-4-6"           # recommended (matches defaults.chat)
     - "global.anthropic.claude-opus-4-7"
     - "global.anthropic.claude-haiku-4-5-20251001-v1:0"
     - "moonshotai.kimi-k2.5"

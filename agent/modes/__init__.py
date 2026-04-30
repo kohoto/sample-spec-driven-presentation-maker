@@ -3,6 +3,7 @@
 """Declarative mode definitions for SDPM agents."""
 
 from dataclasses import dataclass, field
+from typing import Literal
 
 from composition import Part, Source
 
@@ -14,10 +15,13 @@ class ModeConfig:
     Attributes:
         parts: Ordered prompt parts (static .md files, MCP prefetch, or callables).
         use_composer: Include compose_slides tool.
+        agent_model: Which model setting to use for the main agent — "chat" for
+            conversations/planning, "create" for modes that also generate artifacts.
     """
 
     parts: list[Part] = field(default_factory=list)
     use_composer: bool = True
+    agent_model: Literal["chat", "create"] = "chat"
 
 
 # Shared parts — referenced by multiple modes
@@ -66,6 +70,7 @@ MODES: dict[str, ModeConfig] = {
             _NOW,
         ],
         use_composer=False,
+        agent_model="create",
     ),
     # Composer is a sub-agent invoked by compose_slides; ModeConfig is used
     # by compose_slides to build its prompt via the same resolve_parts path.

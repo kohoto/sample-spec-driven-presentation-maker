@@ -57,8 +57,10 @@ interface WebUiStackProps extends cdk.StackProps {
   allowedIpV4AddressRanges?: string[];
   /** Allowed IPv6 CIDR ranges for regional WAF. */
   allowedIpV6AddressRanges?: string[];
-  /** Default model ID (for "Recommended" badge in Settings). */
-  defaultModelId: string;
+  /** Default model ID for the chat task (for "Recommended" badge in Settings). */
+  defaultChatModelId: string;
+  /** Default model ID for the create task (for "Recommended" badge in Settings). */
+  defaultCreateModelId: string;
   /** Allowed models with resolved display metadata. */
   allowedModels: Array<{ modelId: string; displayName: string; description?: string }>;
 }
@@ -346,7 +348,8 @@ function handler(event) {
     // manual `npm run build`. Prefers local Node.js; falls back to Docker.
     const webUiDir = path.join(__dirname, "../../web-ui");
     const allowedModelsJson = JSON.stringify(props.allowedModels);
-    const defaultModelIdStr = props.defaultModelId;
+    const defaultChatModelIdStr = props.defaultChatModelId;
+    const defaultCreateModelIdStr = props.defaultCreateModelId;
     const deployment = new s3deploy.BucketDeployment(this, "DeploySite", {
       sources: [
         s3deploy.Source.asset(webUiDir, {
@@ -354,7 +357,8 @@ function handler(event) {
             image: cdk.DockerImage.fromRegistry("node:20-slim"),
             environment: {
               NEXT_PUBLIC_ALLOWED_MODELS: allowedModelsJson,
-              NEXT_PUBLIC_DEFAULT_MODEL_ID: defaultModelIdStr,
+              NEXT_PUBLIC_DEFAULT_CHAT_MODEL_ID: defaultChatModelIdStr,
+              NEXT_PUBLIC_DEFAULT_CREATE_MODEL_ID: defaultCreateModelIdStr,
             },
             command: [
               "bash", "-c",
@@ -371,7 +375,8 @@ function handler(event) {
                 const envForBuild = {
                   ...process.env,
                   NEXT_PUBLIC_ALLOWED_MODELS: allowedModelsJson,
-                  NEXT_PUBLIC_DEFAULT_MODEL_ID: defaultModelIdStr,
+                  NEXT_PUBLIC_DEFAULT_CHAT_MODEL_ID: defaultChatModelIdStr,
+                  NEXT_PUBLIC_DEFAULT_CREATE_MODEL_ID: defaultCreateModelIdStr,
                 };
                 execSync("npm ci", { cwd: webUiDir, stdio: "inherit", env: envForBuild });
                 execSync("npm run build:cloud", { cwd: webUiDir, stdio: "inherit", env: envForBuild });

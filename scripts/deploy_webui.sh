@@ -14,9 +14,9 @@ BUILD_DIR="$WEBUI_DIR/build"
 # Always rebuild to avoid shipping a stale build/ (missing chunks cause
 # CloudFront to SPA-fallback HTML to .js requests -> "Unexpected token '<'").
 echo "Building web-ui..."
-# Resolve model config (NEXT_PUBLIC_ALLOWED_MODELS, NEXT_PUBLIC_DEFAULT_MODEL_ID)
-# from infra/config.yaml + infra/lib/model-metadata.ts. Without this, the
-# Settings Sheet "Model" section is hidden (allowed.length === 0).
+# Resolve model config (NEXT_PUBLIC_ALLOWED_MODELS, NEXT_PUBLIC_DEFAULT_CHAT_MODEL_ID,
+# NEXT_PUBLIC_DEFAULT_CREATE_MODEL_ID) from infra/config.yaml + infra/lib/model-metadata.ts.
+# Without this, the Settings Sheet "Models" section is hidden (allowed.length === 0).
 MODEL_ENV=$(cd "$(dirname "$0")/../infra" && node lib/resolve-model-env.js)
 (cd "$WEBUI_DIR" && rm -rf build && eval "$MODEL_ENV" && npm run build:cloud)
 

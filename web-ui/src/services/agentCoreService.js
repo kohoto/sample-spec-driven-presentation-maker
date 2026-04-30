@@ -11,26 +11,27 @@ import { getAllowedModels } from "@/lib/allowedModels";
 
 const IS_LOCAL = process.env.NEXT_PUBLIC_MODE === 'local';
 
-// Read the user's selected model from localStorage, validated against the allowed list.
-function readSelectedModelId() {
+// Read the user's selected chat model from localStorage, validated against the allowed list.
+function readSelectedChatModelId() {
   try {
     const allowed = getAllowedModels();
     if (allowed.length === 0) return undefined;
     const prefs = JSON.parse(localStorage.getItem("sdpm-prefs") || "{}");
-    if (prefs.modelId && allowed.some((m) => m.modelId === prefs.modelId)) {
-      return prefs.modelId;
+    if (prefs.chatModelId && allowed.some((m) => m.modelId === prefs.chatModelId)) {
+      return prefs.chatModelId;
     }
   } catch { /* ignore */ }
   return undefined;
 }
 
-function readSelectedComposerModelId() {
+function readSelectedCreateModelId() {
   try {
     const allowed = getAllowedModels();
     if (allowed.length === 0) return undefined;
     const prefs = JSON.parse(localStorage.getItem("sdpm-prefs") || "{}");
-    if (prefs.composerModelId && allowed.some((m) => m.modelId === prefs.composerModelId)) {
-      return prefs.composerModelId;
+    if (prefs.createModelId) {
+      const model = allowed.find((m) => m.modelId === prefs.createModelId);
+      if (model && model.composable !== false) return prefs.createModelId;
     }
   } catch { /* ignore */ }
   return undefined;
@@ -96,15 +97,15 @@ export const invokeAgentCore = async (query, sessionId, onStreamUpdate, accessTo
     }
 
     // Create the payload
-    const selectedModelId = readSelectedModelId();
-    const selectedComposerModelId = readSelectedComposerModelId();
+    const selectedChatModelId = readSelectedChatModelId();
+    const selectedCreateModelId = readSelectedCreateModelId();
     const payload = {
       prompt: query,
       runtimeSessionId: sessionId,
       userId: userId,
       mode: mode || "separated",
-      ...(selectedModelId ? { modelId: selectedModelId } : {}),
-      ...(selectedComposerModelId ? { composerModelId: selectedComposerModelId } : {}),
+      ...(selectedChatModelId ? { chatModelId: selectedChatModelId } : {}),
+      ...(selectedCreateModelId ? { createModelId: selectedCreateModelId } : {}),
     }
 
     const response = await fetch(url, {

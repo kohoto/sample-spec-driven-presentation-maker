@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Switch } from "@/components/ui/switch"
 import { ModelPicker } from "@/components/ModelPicker"
 import { usePreferences } from "@/hooks/usePreferences"
-import { getAllowedModels, getDefaultModelId } from "@/lib/allowedModels"
+import { getAllowedModels, getDefaultChatModelId, getDefaultCreateModelId } from "@/lib/allowedModels"
 import { toast } from "sonner"
 import { useEffect, useMemo } from "react"
 
@@ -19,37 +19,39 @@ export function Settings({ open, onOpenChange }: SettingsProps) {
   const {
     sendWithEnter,
     setSendWithEnter,
-    modelId,
-    setModelId,
-    composerModelId,
-    setComposerModelId,
+    chatModelId,
+    setChatModelId,
+    createModelId,
+    setCreateModelId,
   } = usePreferences()
   const allowed = useMemo(() => getAllowedModels(), [])
-  const defaultId = useMemo(() => getDefaultModelId(), [])
+  const composable = useMemo(() => allowed.filter((m) => m.composable !== false), [allowed])
+  const defaultChatId = useMemo(() => getDefaultChatModelId(), [])
+  const defaultCreateId = useMemo(() => getDefaultCreateModelId(), [])
 
   // Silently drop stale selections (admin may have removed the model from config).
   useEffect(() => {
-    if (modelId && allowed.length > 0 && !allowed.some((m) => m.modelId === modelId)) {
-      setModelId(undefined)
+    if (chatModelId && allowed.length > 0 && !allowed.some((m) => m.modelId === chatModelId)) {
+      setChatModelId(undefined)
     }
-    if (composerModelId && allowed.length > 0 && !allowed.some((m) => m.modelId === composerModelId)) {
-      setComposerModelId(undefined)
+    if (createModelId && composable.length > 0 && !composable.some((m) => m.modelId === createModelId)) {
+      setCreateModelId(undefined)
     }
-  }, [modelId, composerModelId, allowed, setModelId, setComposerModelId])
+  }, [chatModelId, createModelId, allowed, composable, setChatModelId, setCreateModelId])
 
-  const onMainChange = (id: string | undefined) => {
-    setModelId(id)
+  const onChatChange = (id: string | undefined) => {
+    setChatModelId(id)
     const m = id ? allowed.find((a) => a.modelId === id) : undefined
-    toast.success(m ? `Main agent: ${m.displayName}` : "Main agent: default")
+    toast.success(m ? `Chat: ${m.displayName}` : "Chat: default")
   }
 
-  const onSubChange = (id: string | undefined) => {
-    setComposerModelId(id)
+  const onCreateChange = (id: string | undefined) => {
+    setCreateModelId(id)
     if (id === undefined) {
-      toast.success("Sub agent inherits main")
+      toast.success("Create: default")
     } else {
-      const m = allowed.find((a) => a.modelId === id)
-      if (m) toast.success(`Sub agent: ${m.displayName}`)
+      const m = composable.find((a) => a.modelId === id)
+      if (m) toast.success(`Create: ${m.displayName}`)
     }
   }
 
@@ -75,51 +77,50 @@ export function Settings({ open, onOpenChange }: SettingsProps) {
                   Models
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Choose which AI model each agent uses.
+                  Choose which AI model each task uses.
                 </p>
               </div>
 
               <div className="flex flex-col gap-3">
-                {/* Main agent */}
+                {/* Chat */}
                 <div>
                   <label
-                    htmlFor="main-agent-model"
+                    htmlFor="chat-model"
                     className="mb-1.5 block text-xs font-medium text-foreground"
                   >
-                    Main agent
+                    Chat
                   </label>
                   <ModelPicker
                     models={allowed}
-                    value={modelId}
-                    onChange={onMainChange}
-                    defaultId={defaultId}
-                    triggerId="main-agent-model"
-                    ariaLabel="Select main agent model"
+                    value={chatModelId}
+                    onChange={onChatChange}
+                    defaultId={defaultChatId}
+                    triggerId="chat-model"
+                    ariaLabel="Select chat model"
                   />
                   <p className="mt-1 text-[11px] text-muted-foreground/80">
-                    Plans and orchestrates the conversation.
+                    Conversations and planning.
                   </p>
                 </div>
 
-                {/* Sub agent */}
+                {/* Create */}
                 <div>
                   <label
-                    htmlFor="sub-agent-model"
+                    htmlFor="create-model"
                     className="mb-1.5 block text-xs font-medium text-foreground"
                   >
-                    Sub agent
+                    Create
                   </label>
                   <ModelPicker
-                    models={allowed}
-                    value={composerModelId}
-                    onChange={onSubChange}
-                    defaultId={defaultId}
-                    inheritLabel="Same as main agent"
-                    triggerId="sub-agent-model"
-                    ariaLabel="Select sub agent model"
+                    models={composable}
+                    value={createModelId}
+                    onChange={onCreateChange}
+                    defaultId={defaultCreateId}
+                    triggerId="create-model"
+                    ariaLabel="Select create model"
                   />
                   <p className="mt-1 text-[11px] text-muted-foreground/80">
-                    Generates individual slides. Inherits the main model by default.
+                    Slides, styles, and other artifacts. Needs a capable model.
                   </p>
                 </div>
               </div>
