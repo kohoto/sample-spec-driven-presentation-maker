@@ -23,7 +23,6 @@ from server import mcp, _SKILL_DIR  # noqa: F401
 from tools import (  # noqa: E402
     generate_pptx as _generate_pptx,
     preview as _preview,
-    measure as _measure,
 )
 
 # ---------------------------------------------------------------------------
@@ -661,8 +660,10 @@ Audience: Developers
                         for f in compose_dir.iterdir():
                             m = _re.match(r"^defs_(\d+)\.json$", f.name)
                             if m and int(m.group(1)) < epoch:
-                                try: f.unlink()
-                                except Exception: pass
+                                try:
+                                    f.unlink()
+                                except Exception:
+                                    pass
 
                         result["compose"] = f"{composed} slides composed"
                         if n <= 2 and len(slugs) > 1:
@@ -690,7 +691,6 @@ Audience: Developers
 from upload_tools import (  # noqa: E402
     read_uploaded_file as _read_uploaded_file,
     import_attachment as _import_attachment,
-    upload_file as _upload_file,
     cleanup_old_sessions as _cleanup_old_sessions,
 )
 

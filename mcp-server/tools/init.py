@@ -5,7 +5,6 @@
 # Security: AWS manages infrastructure security. You manage access control,
 # data classification, and IAM policies. See SECURITY.md for details.
 
-import json
 from typing import Any
 
 from storage import Storage

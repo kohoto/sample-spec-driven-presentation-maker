@@ -668,7 +668,7 @@ def run_python(purpose: str, code: str, deck_id: str | None = None, save: bool =
         import traceback
 
         try:
-            from tools.generate import _assemble_slides, _prepare_workspace
+            from tools.generate import _prepare_workspace
 
             user_id = _get_user_id()
             _prepare_epoch = int(time.time())
