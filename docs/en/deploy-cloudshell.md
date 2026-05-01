@@ -9,6 +9,9 @@ spec-driven-presentation-maker is an open-source toolkit that adds presentation 
 Deploy spec-driven-presentation-maker to AWS from CloudShell.
 No local CDK or Docker required. CodeBuild handles all building and deployment.
 
+> **📌 This is the recommended path for deploying to AWS.**
+> `scripts/deploy.sh` also runs on **any local Linux/macOS environment**, not just CloudShell. Because settings are persisted in `infra/config.yaml`, configuration stays consistent across re-deploys, and you don't need to install CDK or Docker locally. Direct local CDK deployment (`npx cdk deploy`) is reserved for development/debugging workflows.
+
 ## Prerequisites
 
 - Signed in to the AWS Management Console

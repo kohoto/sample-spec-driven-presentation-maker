@@ -86,8 +86,8 @@ uv run python server.py
 
 spec-driven-presentation-maker を Amazon Bedrock AgentCore Runtime 上のリモート MCP サーバーとしてデプロイします。
 
-> **💡 簡単デプロイ:** ローカルに CDK や Docker を用意せず、CloudShell からワンコマンドでデプロイすることもできます。
-> [CloudShell デプロイ手順](deploy-cloudshell.md)を参照してください。
+> **💡 AWS へのデプロイは [CloudShell デプロイ手順](deploy-cloudshell.md) を推奨します。**
+> `scripts/deploy.sh` は CloudShell と任意のローカル Linux/macOS から実行でき、CodeBuild 経由でデプロイされるため CDK/Docker のローカルインストールが不要です。本ページ以降の手順はローカル CDK を直接使う開発・デバッグ向けフローです。
 
 ### 設定
 
@@ -188,8 +188,7 @@ curl -X POST \
 
 ## Layer 4: フルスタック（AWS）
 
-> **💡 簡単デプロイ:** Layer 4 も CloudShell からワンコマンドでデプロイできます。`./scripts/deploy.sh --region us-east-1` を実行するだけです。
-> [CloudShell デプロイ手順](deploy-cloudshell.md)を参照してください。
+> **💡 推奨:** Layer 4 のデプロイは [CloudShell デプロイ手順](deploy-cloudshell.md) を利用してください（CloudShell と任意のローカル Linux/macOS で動作）。`./scripts/deploy.sh --region us-east-1` を実行するだけで、CDK/Docker のローカルインストールは不要です。
 
 `config.yaml` で `agent` と `webUi` を有効にしてデプロイすると、以下が追加されます。
 

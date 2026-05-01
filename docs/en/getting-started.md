@@ -86,8 +86,8 @@ For the full tool list, see [Architecture — MCP Tool Reference](architecture.m
 
 Deploy spec-driven-presentation-maker as a remote MCP server on Amazon Bedrock AgentCore Runtime.
 
-> **💡 Easy Deploy:** You can also deploy from CloudShell with a single command — no local CDK or Docker required.
-> See [CloudShell Deploy Guide](deploy-cloudshell.md).
+> **💡 The [CloudShell Deploy Guide](deploy-cloudshell.md) is the recommended path for AWS deployments.**
+> `scripts/deploy.sh` runs from CloudShell and from any local Linux/macOS environment, and builds via CodeBuild — so you don't need CDK or Docker installed locally. The instructions below cover the direct local CDK workflow, mainly used for development and debugging.
 
 ### Configuration
 
@@ -188,8 +188,7 @@ A tool list in the response confirms success.
 
 ## Layer 4: Full Stack (AWS)
 
-> **💡 Easy Deploy:** Layer 4 can also be deployed from CloudShell with a single command. Just run `./scripts/deploy.sh --region us-east-1`.
-> See [CloudShell Deploy Guide](deploy-cloudshell.md).
+> **💡 Recommended path:** Deploy Layer 4 via the [CloudShell Deploy Guide](deploy-cloudshell.md) (works from CloudShell and any local Linux/macOS). Just run `./scripts/deploy.sh --region us-east-1` — no local CDK/Docker needed.
 
 Enable `agent` and `webUi` in `config.yaml` to add:
 
