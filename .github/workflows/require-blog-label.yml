@@ -1,3 +1,16 @@
+# ============================================================================
+# ℹ️  Contributors: you can ignore this CI check if it fails on your PR.
+#
+# This workflow enforces that every PR has a `blog:pending`, `blog:skip`, or
+# `blog:done` label so maintainers can decide whether to publish a blog post
+# about the change. Adding these labels requires maintainer permissions, so
+# external contributors cannot pass this check themselves.
+#
+# A maintainer will add the appropriate label during review. Until then, this
+# single CI will stay red — it does NOT block the PR and you do not need to
+# do anything. Please feel free to ignore the failure email.
+# ============================================================================
+
 name: Require blog label
 
 on:
@@ -21,7 +34,8 @@ jobs:
           if echo "$LABELS" | grep -qE '"blog:(pending|skip|done)"'; then
             echo "✅ Blog label found"
           else
-            echo "::error::PR に blog:pending または blog:skip または blog:done ラベルを付けてください"
+            echo "::notice::ℹ️  External contributors can ignore this failure. A maintainer will add a blog:pending / blog:skip / blog:done label during review."
+            echo "::error::Missing blog label (blog:pending, blog:skip, or blog:done). Maintainers: please add one. Contributors: no action needed — you can ignore this."
             exit 1
           fi
 
