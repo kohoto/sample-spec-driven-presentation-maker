@@ -66,9 +66,27 @@ if (externalOidc && externalClients) {
 }
 
 // --- Required stacks ---
-const searchSlides = config.features?.searchSlides === true;
-const observability = config.features?.observability === true;
-const data = new DataStack(app, "SdpmData", { env, searchSlides, observability, description: "Spec-Driven Presentation Maker - Data (uksb-ynuz0lkrea)(tag:data)" });
+// `searchSlides` has been removed — semantic slide search is always enabled.
+if (config.features?.searchSlides !== undefined) {
+  console.warn(
+    "[deprecation] `features.searchSlides` is deprecated and has been removed. " +
+    "Semantic slide search is now always enabled. Please remove this option from config.yaml.",
+  );
+}
+
+// Resolve enableInvocationLogging with backward compatibility for legacy `observability` key.
+let enableInvocationLogging = config.features?.enableInvocationLogging === true;
+if (config.features?.observability !== undefined) {
+  console.warn(
+    "[deprecation] `features.observability` is deprecated. " +
+    "Use `features.enableInvocationLogging` instead. The legacy key will be removed in a future release.",
+  );
+  if (config.features?.enableInvocationLogging === undefined) {
+    enableInvocationLogging = config.features.observability === true;
+  }
+}
+
+const data = new DataStack(app, "SdpmData", { env, enableInvocationLogging, description: "Spec-Driven Presentation Maker - Data (uksb-ynuz0lkrea)(tag:data)" });
 
 const runtime = new RuntimeStack(app, "SdpmRuntime", {
   env,
@@ -179,7 +197,7 @@ if (config.stacks?.agent) {
       userPool: authStack.userPool,
       userPoolClient: authStack.userPoolClient,
       memoryId: agent.memoryId,
-      kbId: searchSlides ? data.kbSsmParamName : undefined,
+      kbId: data.kbSsmParamName,
       vectorBucketName: data.vectorBucketName || undefined,
       vectorIndexName: data.vectorIndexName || undefined,
       webAclId: cloudFrontWafStack?.webAclArn,

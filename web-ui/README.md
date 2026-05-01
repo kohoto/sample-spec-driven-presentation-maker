@@ -33,7 +33,7 @@ A React-based chat interface for creating presentations through conversational A
 
 ```bash
 cd web-ui
-npm install
+npm ci
 npm run dev     # Starts dev server with Turbopack
 ```
 
@@ -59,7 +59,7 @@ Run the Web UI entirely on your machine, backed by **[Kiro](https://kiro.dev/) C
 
 ```bash
 cd web-ui
-npm install
+npm ci
 npm run dev:local
 ```
 
@@ -209,7 +209,7 @@ OIDC authentication flow — `AuthProvider` wraps the Cognito OIDC context, `Aut
 |---|---|
 | [Getting Started](../docs/en/getting-started.md) | Full setup guide for all layers |
 | [Architecture](../docs/en/architecture.md) | 4-layer design, data flow, auth model |
-| [CloudShell Deploy](../docs/en/deploy-cloudshell.md) | One-command deploy from CloudShell |
+| [Recommended Deploy](../docs/en/deploy-cloudshell.md) | Recommended path for AWS deployments (CloudShell or local) |
 
 ---
 
