@@ -5,6 +5,7 @@ export interface AllowedModel {
   modelId: string;
   displayName: string;
   description?: string;
+  composable?: boolean;
 }
 
 export function getAllowedModels(): AllowedModel[] {
@@ -18,6 +19,12 @@ export function getAllowedModels(): AllowedModel[] {
   }
 }
 
-export function getDefaultModelId(): string | undefined {
-  return process.env.NEXT_PUBLIC_DEFAULT_MODEL_ID || undefined;
+export function getDefaultChatModelId(): string | undefined {
+  return process.env.NEXT_PUBLIC_DEFAULT_CHAT_MODEL_ID || undefined;
+}
+
+export function getDefaultCreateModelId(): string | undefined {
+  return process.env.NEXT_PUBLIC_DEFAULT_CREATE_MODEL_ID
+    || process.env.NEXT_PUBLIC_DEFAULT_CHAT_MODEL_ID
+    || undefined;
 }

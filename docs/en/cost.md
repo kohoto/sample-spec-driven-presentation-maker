@@ -1,20 +1,40 @@
 # Cost Estimates
 
-Estimated AWS costs when deploying SDPM. This page complements the overall summary in the CloudShell Deploy Guide with a detailed breakdown of the semantic slide search cost (Amazon Bedrock Knowledge Bases + Amazon S3 Vectors).
+Estimated AWS costs when deploying SDPM.
 
-> Estimates based on publicly listed pricing as of April 2026. AWS pricing may change; always check the latest at [Amazon Bedrock pricing](https://aws.amazon.com/bedrock/pricing/) and [Amazon S3 pricing](https://aws.amazon.com/s3/pricing/).
+> Estimates based on publicly listed pricing as of April 2026. AWS pricing may change; always check the latest at [Amazon Bedrock Pricing](https://aws.amazon.com/bedrock/pricing/), [AgentCore Pricing](https://aws.amazon.com/bedrock/agentcore/pricing/), [Amazon S3 Pricing](https://aws.amazon.com/s3/pricing/), and [DynamoDB Pricing](https://aws.amazon.com/dynamodb/pricing/).
 
-## Overall cost summary
+## Overall estimate
 
-Layer 4 full stack (us-east-1, small team of 10 users, ~20 decks generated per month):
+Estimates for Layer 4 full stack (us-east-1). Assumes a team of ~10 users generating ~20 decks per month.
 
-- **Fixed**: ~$6/month (CloudFront, API Gateway, S3, DynamoDB, ECR, CloudWatch Logs, etc.)
-- **Variable**: ~$90–145/month (AgentCore Runtime, Claude Sonnet 4.6, Code Interpreter, Memory, Slide search)
-- **Total**: **~$95–145/month**
+### Fixed costs (always running)
 
-See [CloudShell Deploy Guide — Estimated Monthly Cost](deploy-cloudshell.md#estimated-monthly-cost) for a full breakdown.
+| Resource | Est. monthly |
+|---|---|
+| CloudFront | ~$1 |
+| Cognito User Pool | $0 |
+| API Gateway REST + Lambda (API) | ~$1 |
+| S3 (3 buckets) | ~$1 |
+| DynamoDB On-Demand | ~$1 |
+| ECR (2 images) | ~$1 |
+| CloudWatch Logs | ~$1 |
 
-## Slide search (Bedrock KB + S3 Vectors)
+### Variable costs (usage-dependent)
+
+| Resource | Est. for 20 decks/month |
+|---|---|
+| AgentCore Runtime (MCP Server + Agent) | ~$5-10 |
+| Bedrock Claude Sonnet 4.6 (Agent LLM) | ~$80-130 |
+| AgentCore Code Interpreter | ~$1-3 |
+| AgentCore Memory | ~$1 |
+| Slide search (Bedrock KB + Titan Embed V2 + S3 Vectors) | ~$0.01-0.05 |
+
+### Total
+
+**~$95–145/month** (varies with usage)
+
+## Slide search cost detail
 
 SDPM provides cross-deck semantic search out of the box. The following AWS resources are created:
 
@@ -64,7 +84,7 @@ Assumptions: 300 slides, 300 tokens/slide on average, 50 new slides/month, 50 se
 - **More than ~5M vectors**: S3 Vectors per-index query cost starts to climb. Consider partitioning.
 - **More than ~1M queries/month**: Query data processing cost becomes dominant. Consider a caching layer.
 
-## Other cost-reduction tips
+## Cost-reduction tips
 
 | Method | Savings | Notes |
 |---|---|---|
@@ -75,6 +95,6 @@ Assumptions: 300 slides, 300 tokens/slide on average, 50 new slides/month, 50 se
 
 ## Related documents
 
-- [CloudShell Deploy Guide](deploy-cloudshell.md) — Overall cost breakdown
 - [Getting Started](getting-started.md) — Deployment architecture and options
+- [CloudShell Deploy Guide](deploy-cloudshell.md) — CloudShell deployment steps
 - [Uninstall Guide](uninstall.md) — Resource cleanup

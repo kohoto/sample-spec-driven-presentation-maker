@@ -233,42 +233,7 @@ Bedrock Model Invocation Logging allows only one configuration per account/regio
 
 ## Estimated Monthly Cost
 
-> **Estimated as of April 2026.** AWS service pricing is subject to change. Always refer to the official pricing pages for the latest rates: [Amazon Bedrock Pricing](https://aws.amazon.com/bedrock/pricing/), [AgentCore Pricing](https://aws.amazon.com/bedrock/agentcore/pricing/), [S3](https://aws.amazon.com/s3/pricing/), [DynamoDB](https://aws.amazon.com/dynamodb/pricing/).
-
-Estimates for Layer 4 full stack (us-east-1). Assumes a team of ~10 users generating ~20 decks per month.
-
-### Fixed Costs (Always Running)
-
-| Resource | Est. Monthly |
-|---|---|
-| CloudFront | ~$1 |
-| Cognito User Pool | $0 |
-| API Gateway REST + Lambda (API) | ~$1 |
-| S3 (3 buckets) | ~$1 |
-| DynamoDB On-Demand | ~$1 |
-| ECR (2 images) | ~$1 |
-| CloudWatch Logs | ~$1 |
-
-### Variable Costs (Usage-Dependent)
-
-| Resource | Est. for 20 Decks/Month |
-|---|---|
-| AgentCore Runtime (MCP Server + Agent) | ~$5-10 |
-| Bedrock Claude Sonnet 4.6 (Agent LLM) | ~$80-130 |
-| AgentCore Code Interpreter | ~$1-3 |
-| AgentCore Memory | ~$1 |
-| Slide search (Bedrock KB + Titan Embed V2 + S3 Vectors) | ~$0.01-0.05 |
-
-### Total
-
-**~$95–145/month** (varies with usage)
-
-### Cost Reduction Tips
-
-| Method | Savings | Notes |
-|---|---|---|
-| Prompt caching | LLM cost up to 80% reduction | Enabled by default for supported models |
-| Don't use `--enable-invocation-logging` (default) | No CloudWatch Logs cost | Skip if MIL logging isn't needed |
+See [Cost Estimates](cost.md) for a full breakdown and optimization tips.
 
 ## Related Documents
 

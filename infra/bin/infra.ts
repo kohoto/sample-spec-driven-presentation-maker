@@ -98,13 +98,21 @@ const runtime = new RuntimeStack(app, "SdpmRuntime", {
 });
 
 // --- Model configuration & validation ---
-const defaultModelId: string = config.model?.modelId ?? "global.anthropic.claude-sonnet-4-6";
+const defaultChatModelId: string = config.model?.defaults?.chat ?? "global.anthropic.claude-sonnet-4-6";
+// Create model falls back to the chat model when `defaults.create` is omitted.
+const defaultCreateModelId: string = config.model?.defaults?.create ?? defaultChatModelId;
 const allowedModelIds: string[] = config.model?.allowedModelIds ?? [];
 
 if (allowedModelIds.length > 0) {
-  if (!allowedModelIds.includes(defaultModelId)) {
+  if (!allowedModelIds.includes(defaultChatModelId)) {
     throw new Error(
-      `Config error: model.modelId "${defaultModelId}" is not in model.allowedModelIds. ` +
+      `Config error: model.defaults.chat "${defaultChatModelId}" is not in model.allowedModelIds. ` +
+      `Add it to the list, or remove allowedModelIds.`,
+    );
+  }
+  if (!allowedModelIds.includes(defaultCreateModelId)) {
+    throw new Error(
+      `Config error: model.defaults.create "${defaultCreateModelId}" is not in model.allowedModelIds. ` +
       `Add it to the list, or remove allowedModelIds.`,
     );
   }
@@ -128,6 +136,7 @@ const allowedModels = allowedModelIds.map((id) => ({
   modelId: id,
   displayName: MODEL_METADATA[id].displayName,
   description: MODEL_METADATA[id].description,
+  composable: MODEL_METADATA[id].composable !== false,
 }));
 
 // --- WAF IP restriction (optional) ---
@@ -155,7 +164,8 @@ if (config.stacks?.agent) {
     mcpRuntimeArn: runtime.runtimeArn,
     oidcDiscoveryUrl,
     allowedClients,
-    modelId: config.model?.modelId,
+    chatModelId: defaultChatModelId,
+    createModelId: defaultCreateModelId,
     allowedModelIds,
   });
 
@@ -180,7 +190,8 @@ if (config.stacks?.agent) {
       webAclId: cloudFrontWafStack?.webAclArn,
       allowedIpV4AddressRanges,
       allowedIpV6AddressRanges,
-      defaultModelId,
+      defaultChatModelId,
+      defaultCreateModelId,
       allowedModels,
     });
   }
