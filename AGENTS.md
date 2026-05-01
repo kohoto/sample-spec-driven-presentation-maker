@@ -8,8 +8,8 @@ Choose the layer that matches your environment.
 | Your environment | Layer | AWS required |
 |---|---|:---:|
 | SKILL.md-compatible agent (Claude Code, Codex CLI, Cursor, Kiro, etc.) | **L1** — `skill/` | No |
-| Local MCP client (Claude Desktop, VS Code, Kiro IDE, etc.) | **L2** — `mcp-local/` | No |
-| Remote MCP client (Claude.ai, Cowork, etc.) | **L3** — `mcp-server/` + `infra/` | Yes |
+| Local MCP client (Claude Desktop, Claude Cowork, VS Code, Kiro IDE, etc.) | **L2** — `mcp-local/` | No |
+| Remote-only MCP client (Claude.ai web, etc. — no local process) | **L3** — `mcp-server/` + `infra/` | Yes |
 | Web UI in browser | **L4** — Full stack | Yes |
 
 ---
