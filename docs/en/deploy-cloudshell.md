@@ -23,9 +23,9 @@ This document describes the **recommended way to deploy spec-driven-presentation
     - AWS CloudShell (opened in the target deployment region)
     - Local Linux / macOS / WSL with `bash`, `git`, the `aws` CLI, and valid AWS credentials
 
-## Steps
+## Deploy
 
-### 1. Clone and Deploy
+### Quick Start
 
 In CloudShell, open CloudShell from the AWS Console. Locally, use any shell. Copy-paste the block below to deploy **Layer 4 (Agent + Web UI, default)** to `us-east-1`.
 
@@ -41,9 +41,9 @@ chmod +x scripts/deploy.sh
 
 > **💡 Tip:** CloudShell's home directory (1 GB) persists across sessions. For subsequent deployments, run `cd ~/sample-spec-driven-presentation-maker && git pull && ./scripts/deploy.sh --region us-east-1` to update and redeploy.
 
-### 2. Alternative Configurations
+### Alternative Configurations
 
-For anything other than the default (Layer 4, `us-east-1`), swap in the option combinations below.
+For anything other than the default (Layer 4, `us-east-1`), swap the `./scripts/deploy.sh ...` line in the Quick Start with one of the following.
 
 **Layer 3 (MCP Server only):**
 
@@ -97,7 +97,7 @@ cp infra/config.example.yaml infra/config.yaml
 ./scripts/deploy.sh --region us-east-1 --destroy
 ```
 
-### 3. Monitor Deployment Progress
+## Monitor Deployment Progress
 
 The script streams CodeBuild logs in real time.
 Even if your CloudShell session times out, the CodeBuild build continues on the AWS side.
@@ -107,12 +107,12 @@ If your session disconnects, check the results here:
 - **CodeBuild Console**: Build history for project `sdpm-deploy`
 - **CloudFormation Console**: Stack status and Outputs
 
-### 4. Post-Deployment Verification
+## Post-Deployment Verification
 
 When the build shows `SUCCEEDED`, CloudFormation Outputs appear at the end of the CodeBuild logs.
 If you missed them, check the CloudFormation console.
 
-#### Finding Endpoint URLs
+### Finding Endpoint URLs
 
 1. Open the [CloudFormation Console](https://console.aws.amazon.com/cloudformation/)
 2. Select the deployment region
@@ -135,7 +135,7 @@ If you missed them, check the CloudFormation console.
 | `SdpmWebUi` | `SiteUrl` | Web UI CloudFront URL |
 | `SdpmWebUi` | `ApiUrl` | REST API URL |
 
-#### Creating a Cognito User (Layer 4)
+### Creating a Cognito User (Layer 4)
 
 The default Cognito User Pool has no users, so you need to create one manually.
 
@@ -148,14 +148,14 @@ The default Cognito User Pool has no users, so you need to create one manually.
    - Check **Mark email address as verified**
 5. Click **Create user**
 
-#### Signing in to the Web UI
+### Signing in to the Web UI
 
 1. Open the `SiteUrl` from the `SdpmWebUi` stack Outputs in your browser
 2. Sign in with the email and temporary password you created
 3. You'll be prompted to change your password on first login
 4. After signing in, the chat interface appears
 
-#### Creating a User via CLI
+### Creating a User via CLI
 
 You can also create a user directly from CloudShell.
 
