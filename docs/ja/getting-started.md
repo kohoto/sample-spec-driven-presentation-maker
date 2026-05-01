@@ -4,6 +4,8 @@
 
 spec-driven-presentation-maker をローカル利用から AWS デプロイまで、段階的にセットアップする手順を説明します。
 
+> **🤖 手動で読み進める必要はありません。** このリポジトリには [`AGENTS.md`](../../AGENTS.md) と [`CLAUDE.md`](../../CLAUDE.md) を同梱しています。お使いのコーディングエージェント（Claude Code, Codex CLI, Cursor, Kiro, VS Code の GitHub Copilot 等）に、例えば「このリポジトリをセットアップして」「AWS にデプロイして」「Layer 2 として Claude Desktop から使えるようにして」と話しかけてください。エージェントが AGENTS.md を読み取り、適切なレイヤーとコマンドを自動で選んで進めます。
+
 > **🚀 AWS へのデプロイだけを行いたい場合:** [推奨デプロイ手順](deploy-cloudshell.md) を参照してください。CloudShell または任意のローカル Linux/macOS から `scripts/deploy.sh` を実行するだけで、CDK/Docker のローカルインストールなしに Layer 3/4 をデプロイできます。本ページは、Layer 1〜2 のローカル利用や、ローカル CDK を使った開発・デバッグ向けの手順を含みます。
 
 ## どのレイヤーを使うべきか
