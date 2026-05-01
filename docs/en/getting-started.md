@@ -6,6 +6,13 @@ Step-by-step instructions for setting up spec-driven-presentation-maker, from lo
 
 > **🚀 Deploying to AWS only?** Head to the [CloudShell Deploy Guide](deploy-cloudshell.md). Running `scripts/deploy.sh` from CloudShell — or any local Linux/macOS environment — deploys Layer 3/4 without requiring a local CDK or Docker install. This page covers Layer 1–2 local usage and the direct-CDK workflow used for development and debugging.
 
+## Which Layer Do I Need?
+
+- **Layer 1** — Use from a SKILL.md-compatible coding agent (Claude Code, Codex CLI, Cursor, Kiro, etc.). Python only, no MCP or AWS.
+- **Layer 2** — Use from a local MCP client (Claude Desktop, VS Code, Kiro IDE, etc.). Local stdio MCP, no AWS.
+- **Layer 3** — Use from a remote MCP client (Claude.ai, Cowork, etc. — clients that cannot spawn local processes). AWS deployment required.
+- **Layer 4** — Use the included browser Web UI. AWS full-stack deployment.
+
 ## Prerequisites
 
 Common to all layers:
