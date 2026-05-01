@@ -35,8 +35,8 @@
 
 ## クイックスタート
 
-> **🚀 まずは試してみたい？** CloudShell から数分でフルスタックデプロイできます。ローカルに CDK や Docker は不要です。
-> [CloudShell デプロイ手順](docs/ja/deploy-cloudshell.md)を参照してください。
+> **🚀 まずは試してみたい？** ブラウザの CloudShell またはローカル Linux/macOS/WSL から、数分でフルスタックデプロイできます。ローカルに CDK や Docker は不要です。
+> [推奨デプロイ手順](docs/ja/deploy-cloudshell.md)を参照してください。
 
 ### Layer 1: Kiro CLI スキル
 
@@ -119,7 +119,7 @@ npm install && npx cdk deploy --all
 |---|---|
 | [アーキテクチャ](docs/ja/architecture.md) | 4 層構成、データフロー、認証モデル、MCP ツール一覧 |
 | [はじめに](docs/ja/getting-started.md) | Layer 1〜4 のセットアップとデプロイ手順 |
-| [CloudShell デプロイ](docs/ja/deploy-cloudshell.md) | CloudShell からワンコマンドデプロイ（CDK/Docker 不要） |
+| [推奨デプロイ手順](docs/ja/deploy-cloudshell.md) | AWS デプロイの推奨手順（CloudShell・ローカル Linux/macOS/WSL 対応、CDK/Docker 不要） |
 | [エージェント接続](docs/ja/add-to-gateway.md) | Amazon Bedrock AgentCore Gateway と MCP クライアントの接続方法 |
 | [Teams・Slack 連携](docs/ja/teams-slack-integration.md) | チャットプラットフォーム連携 |
 | [テンプレート・アセット](docs/ja/custom-template.md) | カスタムテンプレートとアセットの追加 |

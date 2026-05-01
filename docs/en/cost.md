@@ -98,5 +98,5 @@ Assumptions: 300 slides, 300 tokens/slide on average, 50 new slides/month, 50 se
 ## Related documents
 
 - [Getting Started](getting-started.md) — Deployment architecture and options
-- [CloudShell Deploy Guide](deploy-cloudshell.md) — CloudShell deployment steps
+- [Recommended Deploy Guide](deploy-cloudshell.md) — Deployment steps (CloudShell or local shell)
 - [Uninstall Guide](uninstall.md) — Resource cleanup

@@ -172,7 +172,7 @@ Cognito OIDC 認証フロー。
 |---|---|
 | [セットアップガイド](../docs/ja/getting-started.md) | Layer 1〜4 の構築手順 |
 | [アーキテクチャ](../docs/ja/architecture.md) | 4層設計、データフロー、認証モデル |
-| [CloudShell デプロイ](../docs/ja/deploy-cloudshell.md) | CloudShell からのワンコマンドデプロイ |
+| [推奨デプロイ手順](../docs/ja/deploy-cloudshell.md) | AWS デプロイの推奨手順（CloudShell・ローカル対応） |
 
 ---
 

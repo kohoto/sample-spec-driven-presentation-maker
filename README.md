@@ -35,8 +35,8 @@ Spec-driven presentation applies the concept of Spec-Driven Development from sof
 
 ## Quick Start
 
-> **🚀 Want to try it quickly?** Deploy the full stack from CloudShell in minutes — no local CDK or Docker required.
-> See [CloudShell Deploy Guide](docs/en/deploy-cloudshell.md).
+> **🚀 Want to try it quickly?** Deploy the full stack in minutes — from CloudShell in your browser or any local Linux/macOS/WSL shell, with no local CDK or Docker required.
+> See the [Recommended Deploy Guide](docs/en/deploy-cloudshell.md).
 
 ### Layer 1: Kiro CLI Skill
 
@@ -119,7 +119,7 @@ See [Architecture](docs/en/architecture.md) for details.
 |---|---|
 | [Architecture](docs/en/architecture.md) | 4-layer design, data flow, auth model, MCP tool reference |
 | [Getting Started](docs/en/getting-started.md) | Setup and deployment for Layer 1–4 |
-| [CloudShell Deploy](docs/en/deploy-cloudshell.md) | One-command deploy from CloudShell (no local CDK/Docker) |
+| [Recommended Deploy](docs/en/deploy-cloudshell.md) | Recommended path for AWS deployments (CloudShell or any local Linux/macOS/WSL, no CDK/Docker required) |
 | [Connecting Agents](docs/en/add-to-gateway.md) | Amazon Bedrock AgentCore Gateway and MCP client configuration |
 | [Teams & Slack Integration](docs/en/teams-slack-integration.md) | Chat platform integration |
 | [Custom Templates & Assets](docs/en/custom-template.md) | Adding custom templates and icons |

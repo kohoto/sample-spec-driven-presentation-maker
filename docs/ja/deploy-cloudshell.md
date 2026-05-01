@@ -1,28 +1,33 @@
 [EN](../en/deploy-cloudshell.md) | [JA](../ja/deploy-cloudshell.md)
 
-# spec-driven-presentation-maker CloudShell デプロイ手順
+# spec-driven-presentation-maker 推奨デプロイ手順
 
 ## spec-driven-presentation-maker について
 
 spec-driven-presentation-maker は、AI エージェントにプレゼンテーション生成能力を追加するオープンソースツールキットです。MCP（Model Context Protocol）ツールとして既存の AI システムに接続するだけで、対話によるスライド生成が可能になります。ローカル CLI からフルスタック Web アプリまで、ニーズに合ったレイヤーを選んで段階的に採用できます。
 
-spec-driven-presentation-maker を AWS CloudShell からデプロイする手順です。
-ローカルに CDK や Docker は不要です。CodeBuild がすべてのビルド・デプロイを実行します。
+AWS へデプロイするときの **推奨手順** です。CodeBuild ですべてのビルド・デプロイを実行するため、ローカルに CDK や Docker をインストールする必要がありません。以下のいずれの環境でも同じ手順で動きます。
 
-> **📌 AWS へのデプロイは本手順を推奨します。**
-> `scripts/deploy.sh` は CloudShell に限らず **ローカルの Linux/macOS 環境でも動作** します。`infra/config.yaml` に設定を保持できるため、再デプロイ時の設定の一貫性も担保しやすく、CDK/Docker をローカルにインストールする必要もありません。ローカル CDK による直接デプロイ（`npx cdk deploy`）は開発・デバッグ向けに位置付けています。
+- **AWS CloudShell**（ブラウザだけで完結）
+- ローカル **Linux / macOS / WSL**（`bash` と `aws` CLI があれば OK）
+
+> Windows はネイティブ Bash が使えないため、**CloudShell または WSL** をお使いください。
+
+> **📌 補足:** 設定は `infra/config.yaml` に保持されるため、再デプロイ時の一貫性が担保されます。ローカル CDK による直接デプロイ（`npx cdk deploy`）は開発・デバッグ向けに位置付けています。
 
 ## 前提条件
 
 - AWS マネジメントコンソールにログイン済み
 - デプロイ先アカウントで **AdministratorAccess** 相当の権限があること（初回デプロイ時）
-- デプロイ先リージョンで CloudShell を開いていること
+- 以下いずれかの作業環境
+    - AWS CloudShell（デプロイ先リージョンで開く）
+    - ローカル Linux / macOS / WSL（`bash`、`git`、`aws` CLI、適切な AWS 認証情報）
 
 ## 手順
 
-### 1. CloudShell でリポジトリをクローンする
+### 1. リポジトリをクローンする
 
-AWS コンソールで CloudShell を開き、リポジトリをクローンします。
+CloudShell の場合は AWS コンソールから CloudShell を開きます。ローカルの場合は任意のシェルで以下を実行します。
 
 ```bash
 cd ~

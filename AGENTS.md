@@ -90,7 +90,7 @@ cd sample-spec-driven-presentation-maker
 bash scripts/deploy.sh --region us-east-1 --layer3
 ```
 
-See [CloudShell Deploy Guide](docs/en/deploy-cloudshell.md) for details.
+See [Recommended Deploy Guide](docs/en/deploy-cloudshell.md) for details.
 
 ---
 
@@ -110,7 +110,7 @@ Use [AWS CloudShell](https://console.aws.amazon.com/cloudshell/) — same clone 
 bash scripts/deploy.sh --region us-east-1
 ```
 
-See [CloudShell Deploy Guide](docs/en/deploy-cloudshell.md) for post-deployment steps (Cognito user creation, endpoint URLs).
+See [Recommended Deploy Guide](docs/en/deploy-cloudshell.md) for post-deployment steps (Cognito user creation, endpoint URLs).
 
 ---
 

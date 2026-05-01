@@ -1,28 +1,33 @@
 [EN](../en/deploy-cloudshell.md) | [JA](../ja/deploy-cloudshell.md)
 
-# spec-driven-presentation-maker CloudShell Deploy Guide
+# spec-driven-presentation-maker Recommended Deploy Guide
 
 ## About spec-driven-presentation-maker
 
 spec-driven-presentation-maker is an open-source toolkit that adds presentation generation capabilities to AI agents. Simply connect it as an MCP (Model Context Protocol) tool to your existing AI system, and you can generate slides through conversation. Choose the layer that fits your needs — from a local CLI to a full-stack web app.
 
-Deploy spec-driven-presentation-maker to AWS from CloudShell.
-No local CDK or Docker required. CodeBuild handles all building and deployment.
+This is the **recommended path for deploying to AWS**. All building and deployment runs through CodeBuild, so you don't need a local CDK or Docker install. The same steps work in either of these environments:
 
-> **📌 This is the recommended path for deploying to AWS.**
-> `scripts/deploy.sh` also runs on **any local Linux/macOS environment**, not just CloudShell. Because settings are persisted in `infra/config.yaml`, configuration stays consistent across re-deploys, and you don't need to install CDK or Docker locally. Direct local CDK deployment (`npx cdk deploy`) is reserved for development/debugging workflows.
+- **AWS CloudShell** (fully browser-based)
+- Local **Linux / macOS / WSL** (requires `bash` and the `aws` CLI)
+
+> Windows has no native Bash, so use **CloudShell** or **WSL**.
+
+> **📌 Note:** Settings are persisted in `infra/config.yaml`, keeping configuration consistent across re-deploys. Direct local CDK deployment (`npx cdk deploy`) is reserved for development/debugging workflows.
 
 ## Prerequisites
 
 - Signed in to the AWS Management Console
 - **AdministratorAccess** or equivalent permissions in the target account (for first deployment)
-- CloudShell open in the target deployment region
+- One of the following working environments
+    - AWS CloudShell (opened in the target deployment region)
+    - Local Linux / macOS / WSL with `bash`, `git`, the `aws` CLI, and valid AWS credentials
 
 ## Steps
 
-### 1. Clone the Repository in CloudShell
+### 1. Clone the Repository
 
-Open CloudShell in the AWS Console and clone the repository.
+In CloudShell, open CloudShell from the AWS Console. Locally, use any shell.
 
 ```bash
 cd ~

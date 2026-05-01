@@ -4,7 +4,7 @@
 
 Step-by-step instructions for setting up spec-driven-presentation-maker, from local usage to AWS deployment.
 
-> **🚀 Deploying to AWS only?** Head to the [CloudShell Deploy Guide](deploy-cloudshell.md). Running `scripts/deploy.sh` from CloudShell — or any local Linux/macOS environment — deploys Layer 3/4 without requiring a local CDK or Docker install. This page covers Layer 1–2 local usage and the direct-CDK workflow used for development and debugging.
+> **🚀 Deploying to AWS only?** Head to the [Recommended Deploy Guide](deploy-cloudshell.md). Running `scripts/deploy.sh` from CloudShell — or any local Linux/macOS environment — deploys Layer 3/4 without requiring a local CDK or Docker install. This page covers Layer 1–2 local usage and the direct-CDK workflow used for development and debugging.
 
 ## Which Layer Do I Need?
 
@@ -95,7 +95,7 @@ For the full tool list, see [Architecture — MCP Tool Reference](architecture.m
 
 Deploy spec-driven-presentation-maker as a remote MCP server on Amazon Bedrock AgentCore Runtime.
 
-> **💡 The [CloudShell Deploy Guide](deploy-cloudshell.md) is the recommended path for AWS deployments.**
+> **💡 The [Recommended Deploy Guide](deploy-cloudshell.md) is the recommended path for AWS deployments.**
 > `scripts/deploy.sh` runs from CloudShell and from any local Linux/macOS environment, and builds via CodeBuild — so you don't need CDK or Docker installed locally. The instructions below cover the direct local CDK workflow, mainly used for development and debugging.
 
 ### Configuration
@@ -197,7 +197,7 @@ A tool list in the response confirms success.
 
 ## Layer 4: Full Stack (AWS)
 
-> **💡 Recommended path:** Deploy Layer 4 via the [CloudShell Deploy Guide](deploy-cloudshell.md) (works from CloudShell and any local Linux/macOS). Just run `./scripts/deploy.sh --region us-east-1` — no local CDK/Docker needed.
+> **💡 Recommended path:** Deploy Layer 4 via the [Recommended Deploy Guide](deploy-cloudshell.md) (works from CloudShell and any local Linux/macOS). Just run `./scripts/deploy.sh --region us-east-1` — no local CDK/Docker needed.
 
 Enable `agent` and `webUi` in `config.yaml` to add:
 

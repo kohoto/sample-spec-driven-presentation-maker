@@ -4,7 +4,7 @@
 
 spec-driven-presentation-maker をローカル利用から AWS デプロイまで、段階的にセットアップする手順を説明します。
 
-> **🚀 AWS へのデプロイだけを行いたい場合:** [CloudShell デプロイ手順](deploy-cloudshell.md) を参照してください。CloudShell または任意のローカル Linux/macOS から `scripts/deploy.sh` を実行するだけで、CDK/Docker のローカルインストールなしに Layer 3/4 をデプロイできます。本ページは、Layer 1〜2 のローカル利用や、ローカル CDK を使った開発・デバッグ向けの手順を含みます。
+> **🚀 AWS へのデプロイだけを行いたい場合:** [推奨デプロイ手順](deploy-cloudshell.md) を参照してください。CloudShell または任意のローカル Linux/macOS から `scripts/deploy.sh` を実行するだけで、CDK/Docker のローカルインストールなしに Layer 3/4 をデプロイできます。本ページは、Layer 1〜2 のローカル利用や、ローカル CDK を使った開発・デバッグ向けの手順を含みます。
 
 ## どのレイヤーを使うべきか
 
@@ -95,7 +95,7 @@ uv run python server.py
 
 spec-driven-presentation-maker を Amazon Bedrock AgentCore Runtime 上のリモート MCP サーバーとしてデプロイします。
 
-> **💡 AWS へのデプロイは [CloudShell デプロイ手順](deploy-cloudshell.md) を推奨します。**
+> **💡 AWS へのデプロイは [推奨デプロイ手順](deploy-cloudshell.md) を推奨します。**
 > `scripts/deploy.sh` は CloudShell と任意のローカル Linux/macOS から実行でき、CodeBuild 経由でデプロイされるため CDK/Docker のローカルインストールが不要です。本ページ以降の手順はローカル CDK を直接使う開発・デバッグ向けフローです。
 
 ### 設定
@@ -197,7 +197,7 @@ curl -X POST \
 
 ## Layer 4: フルスタック（AWS）
 
-> **💡 推奨:** Layer 4 のデプロイは [CloudShell デプロイ手順](deploy-cloudshell.md) を利用してください（CloudShell と任意のローカル Linux/macOS で動作）。`./scripts/deploy.sh --region us-east-1` を実行するだけで、CDK/Docker のローカルインストールは不要です。
+> **💡 推奨:** Layer 4 のデプロイは [推奨デプロイ手順](deploy-cloudshell.md) を利用してください（CloudShell と任意のローカル Linux/macOS で動作）。`./scripts/deploy.sh --region us-east-1` を実行するだけで、CDK/Docker のローカルインストールは不要です。
 
 `config.yaml` で `agent` と `webUi` を有効にしてデプロイすると、以下が追加されます。
 
