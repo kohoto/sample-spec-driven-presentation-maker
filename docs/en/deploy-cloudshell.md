@@ -6,14 +6,14 @@
 
 spec-driven-presentation-maker is an open-source toolkit that adds presentation generation capabilities to AI agents. Simply connect it as an MCP (Model Context Protocol) tool to your existing AI system, and you can generate slides through conversation. Choose the layer that fits your needs — from a local CLI to a full-stack web app.
 
-This is the **recommended path for deploying to AWS**. All building and deployment runs through CodeBuild, so you don't need a local CDK or Docker install. The same steps work in either of these environments:
+This document describes the **recommended way to deploy spec-driven-presentation-maker (SDPM) to AWS**. Because CodeBuild runs the build and deployment, you don't need a local CDK or Docker install, and the same steps work in either of these environments:
 
 - **AWS CloudShell** (fully browser-based)
 - Local **Linux / macOS / WSL** (requires `bash` and the `aws` CLI)
 
 > Windows has no native Bash, so use **CloudShell** or **WSL**.
 
-> **📌 Note:** Settings are persisted in `infra/config.yaml`, keeping configuration consistent across re-deploys. Direct local CDK deployment (`npx cdk deploy`) is reserved for development/debugging workflows.
+> **📌 Note:** Deployment settings can be persisted in `infra/config.yaml`, making re-deploys more consistent. Direct local CDK deployment (`npx cdk deploy`) is reserved for development and debugging workflows.
 
 ## Prerequisites
 
