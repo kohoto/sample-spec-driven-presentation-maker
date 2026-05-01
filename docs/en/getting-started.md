@@ -4,6 +4,8 @@
 
 Step-by-step instructions for setting up spec-driven-presentation-maker, from local usage to AWS deployment.
 
+> **🚀 Deploying to AWS only?** Head to the [CloudShell Deploy Guide](deploy-cloudshell.md). Running `scripts/deploy.sh` from CloudShell — or any local Linux/macOS environment — deploys Layer 3/4 without requiring a local CDK or Docker install. This page covers Layer 1–2 local usage and the direct-CDK workflow used for development and debugging.
+
 ## Prerequisites
 
 Common to all layers:
@@ -11,7 +13,7 @@ Common to all layers:
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager
 
-Additional requirements for Layer 3–4 (AWS deployment):
+Additional requirements for **deploying Layer 3–4 with local CDK directly** (not needed when using the CloudShell deploy path):
 
 - AWS Account ([CDK bootstrapped](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html): `cdk bootstrap aws://ACCOUNT_ID/REGION`)
 - Node.js 18+
