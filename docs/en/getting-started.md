@@ -8,8 +8,8 @@ Step-by-step instructions for setting up spec-driven-presentation-maker, from lo
 
 ## Which Layer Do I Need?
 
-- **Layer 1** — Use from a SKILL.md-compatible coding agent (Claude Code, Codex CLI, Cursor, Kiro, etc.). Python only, no MCP or AWS.
-- **Layer 2** — Use from a local MCP client (Claude Desktop, Claude Cowork, VS Code, Kiro IDE, etc.). Local stdio MCP, no AWS.
+- **Layer 1** — Use from a SKILL.md-compatible coding agent (Claude Code, Codex CLI, Cursor, Kiro, GitHub Copilot in VS Code, etc.). Python only, no MCP or AWS.
+- **Layer 2** — Use from a local MCP client (Claude Desktop, Claude Cowork, etc.). Local stdio MCP, no AWS.
 - **Layer 3** — Use from a remote-only MCP client (Claude.ai web, etc. — clients that cannot spawn local processes). AWS deployment required.
 - **Layer 4** — Use the included browser Web UI. AWS full-stack deployment.
 
