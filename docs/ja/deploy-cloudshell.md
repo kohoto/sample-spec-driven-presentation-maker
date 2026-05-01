@@ -25,33 +25,25 @@ AWS へデプロイするときの **推奨手順** です。CodeBuild ですべ
 
 ## 手順
 
-### 1. リポジトリをクローンする
+### 1. クローンしてデプロイする
 
-CloudShell の場合は AWS コンソールから CloudShell を開きます。ローカルの場合は任意のシェルで以下を実行します。
+CloudShell の場合は AWS コンソールから CloudShell を開き、ローカルの場合は任意のシェルで以下をコピペ実行します。**Layer 4（Agent + Web UI、デフォルト）** が `us-east-1` にデプロイされます。
 
 ```bash
 cd ~
 git clone https://github.com/aws-samples/sample-spec-driven-presentation-maker.git
 cd sample-spec-driven-presentation-maker
-```
-
-> **💡 ヒント:** CloudShell のホームディレクトリ（1 GB）はセッション間で永続化されます。2 回目以降は `cd ~/sample-spec-driven-presentation-maker && git pull` で最新化できます。
-
-### 2. deploy.sh を実行する
-
-```bash
 chmod +x scripts/deploy.sh
+./scripts/deploy.sh --region us-east-1
 ```
-
-用途に応じてオプションを選択します。
-
-**Layer 4（フルスタック: Agent + Web UI）— デフォルト:**
 
 > **🌐 ブラウザだけですぐに試したい方はこちら！** Layer 4 をデプロイすると、チャット形式の Web UI が立ち上がります。デプロイ後に [Cognito ユーザーを作成](#cognito-ユーザーの作成layer-4)すれば、ブラウザからすぐにスライド生成を体験できます。
 
-```bash
-./scripts/deploy.sh --region us-east-1
-```
+> **💡 ヒント:** CloudShell のホームディレクトリ（1 GB）はセッション間で永続化されます。2 回目以降は `cd ~/sample-spec-driven-presentation-maker && git pull && ./scripts/deploy.sh --region us-east-1` で最新化＋再デプロイできます。
+
+### 2. 別の構成でデプロイする場合
+
+上記のデフォルト（Layer 4, `us-east-1`）以外でデプロイしたい場合は、オプションを組み合わせます。
 
 **Layer 3（MCP Server のみ）:**
 

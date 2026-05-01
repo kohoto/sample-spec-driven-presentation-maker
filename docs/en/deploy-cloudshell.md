@@ -25,33 +25,25 @@ This is the **recommended path for deploying to AWS**. All building and deployme
 
 ## Steps
 
-### 1. Clone the Repository
+### 1. Clone and Deploy
 
-In CloudShell, open CloudShell from the AWS Console. Locally, use any shell.
+In CloudShell, open CloudShell from the AWS Console. Locally, use any shell. Copy-paste the block below to deploy **Layer 4 (Agent + Web UI, default)** to `us-east-1`.
 
 ```bash
 cd ~
 git clone https://github.com/aws-samples/sample-spec-driven-presentation-maker.git
 cd sample-spec-driven-presentation-maker
-```
-
-> **💡 Tip:** CloudShell's home directory (1 GB) persists across sessions. For subsequent deployments, run `cd ~/sample-spec-driven-presentation-maker && git pull` to update.
-
-### 2. Run deploy.sh
-
-```bash
 chmod +x scripts/deploy.sh
+./scripts/deploy.sh --region us-east-1
 ```
-
-Choose options based on your use case.
-
-**Layer 4 (Full Stack: Agent + Web UI) — Default:**
 
 > **🌐 Want to try it in your browser right away?** Layer 4 deploys a chat-based Web UI. After deployment, [create a Cognito user](#creating-a-cognito-user-layer-4) and you can start generating slides from your browser immediately.
 
-```bash
-./scripts/deploy.sh --region us-east-1
-```
+> **💡 Tip:** CloudShell's home directory (1 GB) persists across sessions. For subsequent deployments, run `cd ~/sample-spec-driven-presentation-maker && git pull && ./scripts/deploy.sh --region us-east-1` to update and redeploy.
+
+### 2. Alternative Configurations
+
+For anything other than the default (Layer 4, `us-east-1`), swap in the option combinations below.
 
 **Layer 3 (MCP Server only):**
 
