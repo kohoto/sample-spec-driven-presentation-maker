@@ -1,3 +1,5 @@
+[EN](../en/cost.md) | [JA](../ja/cost.md)
+
 # Cost Estimates
 
 Estimated AWS costs when deploying SDPM.

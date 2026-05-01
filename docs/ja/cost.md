@@ -1,3 +1,5 @@
+[EN](../en/cost.md) | [JA](../ja/cost.md)
+
 # コスト試算
 
 SDPM を AWS にデプロイした際の推定コストをまとめます。

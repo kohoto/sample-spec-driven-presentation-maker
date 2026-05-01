@@ -1,3 +1,5 @@
+[EN](../en/uninstall.md) | [JA](../ja/uninstall.md)
+
 # Uninstall Guide
 
 How to remove SDPM resources from your AWS account.

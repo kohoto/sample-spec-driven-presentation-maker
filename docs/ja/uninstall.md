@@ -1,3 +1,5 @@
+[EN](../en/uninstall.md) | [JA](../ja/uninstall.md)
+
 # 削除手順
 
 SDPM をデプロイした AWS 環境からリソースを削除する手順です。
