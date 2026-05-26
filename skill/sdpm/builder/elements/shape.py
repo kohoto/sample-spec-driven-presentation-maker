@@ -228,10 +228,7 @@ class ShapeMixin:
                     txBody.insert(1, new_lst)
             
             tf.word_wrap = True
-            if elem.get("_spAutoFit"):
-                tf.auto_size = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
-            else:
-                tf.auto_size = None
+            tf.auto_size = None  # no autofit — fixed size shape
             tf.clear()
             
             # Apply margins (px input → EMU)
@@ -651,10 +648,7 @@ class ShapeMixin:
             from pptx.enum.text import MSO_AUTO_SIZE
             tf = shape.text_frame
             tf.word_wrap = True
-            if elem.get("_spAutoFit"):
-                tf.auto_size = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
-            else:
-                tf.auto_size = None
+            tf.auto_size = None  # no autofit — fixed size shape
             tf.clear()
             if elem.get("marginLeft") is not None:
                 tf.margin_left = self._px_to_emu(elem["marginLeft"])
