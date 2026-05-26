@@ -58,21 +58,18 @@ class TextboxMixin:
         tf = textbox.text_frame
         tf.margin_left = 0
         tf.margin_right = 0
-        if elem.get("_noAutofit"):
-            # Clean bodyPr to match original (no autofit, no wrap override)
-            from pptx.oxml.ns import qn
-            bodyPr = tf._txBody.find(qn('a:bodyPr'))
-            for attr in list(bodyPr.attrib):
-                if 'wrap' in attr:
-                    del bodyPr.attrib[attr]
-            for child in list(bodyPr):
-                tag = child.tag.split('}')[1]
-                if tag in ('spAutoFit', 'noAutofit', 'normAutofit'):
-                    bodyPr.remove(child)
-        else:
-            tf.auto_size = None  # no autofit — fixed size textbox
-        if not elem.get("_noAutofit"):
-            tf.word_wrap = not auto_width
+        # Always disable autofit — fixed size textbox
+        from pptx.oxml.ns import qn
+        bodyPr = tf._txBody.find(qn('a:bodyPr'))
+        for attr in list(bodyPr.attrib):
+            if 'wrap' in attr:
+                del bodyPr.attrib[attr]
+        for child in list(bodyPr):
+            tag = child.tag.split('}')[1]
+            if tag in ('spAutoFit', 'noAutofit', 'normAutofit'):
+                bodyPr.remove(child)
+        tf.auto_size = None
+        tf.word_wrap = not auto_width
         
         # Apply rotation
         rotation = elem.get("rotation", _DEFAULTS["rotation"])

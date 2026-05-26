@@ -76,13 +76,20 @@ def generate_pptx(deck_id: str) -> dict[str, Any]:
     Returns:
         Dict with output_path and slide summary.
     """
+    import subprocess
+    import sys
     from sdpm.api import generate
     from sdpm.assets import invalidate_manifest_cache
     invalidate_manifest_cache()
-    return generate(
+    result = generate(
         json_path=deck_id,
         output_path=str(Path(deck_id) / "output.pptx"),
     )
+    # Auto-open generated PPTX on macOS
+    output = result.get("output_path")
+    if output and sys.platform == "darwin":
+        subprocess.Popen(["open", output])
+    return result
 
 
 
