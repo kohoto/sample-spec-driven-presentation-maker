@@ -21,7 +21,8 @@ def analyze_template(template_path: Path):
     prs = Presentation(str(template_path))
     emu = 6350
 
-    # Build layout→notes mapping from slides
+    # Notes are authored per sample slide. Map layout name -> notes when the
+    # template ships with sample slides (may be empty for clean templates).
     layout_notes = {}
     for slide in prs.slides:
         name = slide.slide_layout.name or "(unnamed)"
@@ -33,15 +34,26 @@ def analyze_template(template_path: Path):
                 pass
             layout_notes[name] = notes
 
+    # Build the layout list from the master layout definitions, NOT from sample
+    # slides. Templates with zero sample slides must still expose every layout
+    # (cover / section / thank-you etc.) and their background art.
     layouts = []
-    for name, notes in layout_notes.items():
-        entry = {"name": name}
-        if notes:
-            entry["notes"] = notes
-        layouts.append(entry)
+    seen = set()
+    for master in prs.slide_masters:
+        for sl in master.slide_layouts:
+            name = sl.name or "(unnamed)"
+            if name in seen:
+                continue
+            seen.add(name)
+            entry = {"name": name}
+            notes = layout_notes.get(name, "")
+            if notes:
+                entry["notes"] = notes
+            layouts.append(entry)
 
     theme_colors = extract_theme_colors(template_path)
     fonts = extract_fonts(template_path)
+    table_styles = _extract_table_styles(template_path)
     color_usage = _load_color_usage_cache(template_path)
     slide_size = {
         "width": int(prs.slide_width / emu),
@@ -54,7 +66,52 @@ def analyze_template(template_path: Path):
         "theme_colors": theme_colors,
         "color_usage": color_usage,
         "fonts": fonts,
+        "table_styles": table_styles,
     }
+
+
+def _extract_table_styles(template_path: Path) -> dict:
+    """Read ppt/tableStyles.xml and return defined table styles.
+
+    Returns {"default": <name or None>, "styles": [{"name", "description"}, ...]}.
+    The description is auto-derived from the style's header fill + banding so the
+    agent can pick a style matching the deck's accent without opening the XML.
+    """
+    ns_a = "http://schemas.openxmlformats.org/drawingml/2006/main"
+    result = {"default": None, "styles": []}
+    try:
+        with zipfile.ZipFile(str(template_path)) as z:
+            if "ppt/tableStyles.xml" not in z.namelist():
+                return result
+            root = etree.fromstring(z.read("ppt/tableStyles.xml"))
+    except Exception:
+        return result
+
+    def_id = root.get("def")
+    for st in root.findall(f"{{{ns_a}}}tblStyle"):
+        name = st.get("styleName") or "(unnamed)"
+        style_id = st.get("styleId")
+        if style_id and style_id == def_id:
+            result["default"] = name
+
+        # Header fill accent (firstRow > fill > solidFill > schemeClr/@val)
+        header_accent = None
+        first_row = st.find(f"{{{ns_a}}}firstRow")
+        if first_row is not None:
+            clr = first_row.find(f".//{{{ns_a}}}fill//{{{ns_a}}}schemeClr")
+            if clr is not None:
+                header_accent = clr.get("val")
+        banded = st.find(f"{{{ns_a}}}band1H") is not None
+
+        parts = []
+        if header_accent:
+            parts.append(f"header: {header_accent}")
+        if banded:
+            parts.append("banded rows")
+        description = ", ".join(parts) if parts else "plain"
+
+        result["styles"].append({"name": name, "description": description})
+    return result
 
 
 def get_layout_placeholders(template_path: Path, layout_name: str):
