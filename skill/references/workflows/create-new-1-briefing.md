@@ -27,11 +27,13 @@ You MUST NOT read the next workflow file until the user explicitly approves `spe
 - You MUST NOT read any other workflow file until `specs/brief.md` is approved
 - You MUST NOT produce an outline, slide structure, or per-slide breakdown — that is a separate workflow
 - You MUST NOT select a template — that belongs to a later workflow
+- You MUST ask the user where to create the deck before running `init`, and pass that path via `-o` — never guess the location or rely on the default output directory
 - Before each question, briefly explain what you are doing and what the user needs to decide
 - Speak in the user's language, using plain words
 - Use inference-based proposals: recommend with rationale — let the user confirm or redirect
 - You MUST confirm all prerequisites before writing the brief
 - You MUST extract the main message from conversation or source material — do NOT invent
+- You MUST NOT state any number, percentage, or quantified effect unless it comes from the conversation, the user's source material, or a citable source URL. If you cannot point to where a number came from, do NOT use it — describe the effect qualitatively instead (e.g. "significantly faster" rather than a fabricated "10x faster"). Hallucinated metrics destroy credibility.
 - You MUST define expected outcome as a concrete action
 
 ## Steps
@@ -62,15 +64,24 @@ Ask follow-up questions based on answers when needed (e.g., executives → what 
 - Comparative: "[New approach] is [advantage] over [current]"
 - Opportunity: "[New technology] enables [benefit]"
 
-Good: Contains specific numbers/effects (30-60 characters)
+Good: A clear assertion of what changes for the audience (30-60 characters)
 Bad: "I will explain about ~" (no assertion)
 
-Example:
+Numbers strengthen a message, but only use a specific number/percentage when it is grounded in the conversation, the user's source material, or a citable source URL. Never invent a figure to make the message sound sharper — when you have no source, assert the effect qualitatively and, if useful, ask the user whether they have a concrete figure to back it up.
+
+Example (number is grounded — the user said deployment dropped from 2h to 10min):
 
 > Based on what you've told me, the core message could be:
 > "Feature X cuts deployment time from 2 hours to 10 minutes"
 >
 > Does this capture what you want to convey? Or is the emphasis different?
+
+Example (no source for a figure — stay qualitative and ask):
+
+> The core message could be:
+> "Feature X makes deployments dramatically faster"
+>
+> Do you have a concrete before/after number (and a source) we could cite? A specific figure would make this land harder, but I won't put a number in without one.
 
 4. Define expected outcome — infer from audience attributes and main message. The outcome should be a concrete action the audience takes after the presentation.
 
@@ -93,12 +104,19 @@ Example:
 
 Once the hearing gives enough understanding of the presentation content, initialize the working directory.
 
-Before running `init`, determine your output path:
-- Can I write files outside this workspace? → use default (no `-o`)
-- Can I only write inside this workspace? → use `-o` with a writable path
+Before running `init`, you MUST ask the user where to create the deck. Do NOT guess
+the location or fall back to the default — always confirm the output directory with
+the user first, then pass it explicitly via `-o`.
+
+Ask plainly, e.g.:
+
+> Where should I create this deck? Give me a directory path
+> (e.g. `~/Documents/decks` or `./decks`), and I'll create it under there.
+
+Once the user gives a path, run `init` with `-o <user-path>/{name}`:
 
 ```bash
-uv run python3 scripts/pptx_builder.py init {name}
+uv run python3 scripts/pptx_builder.py init {name} -o <user-path>/{name}
 ```
 
 This generates `brief.md` and `outline.md` under `specs/`.

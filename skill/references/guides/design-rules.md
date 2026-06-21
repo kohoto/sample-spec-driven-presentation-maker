@@ -19,7 +19,25 @@ Dark background → white text. Light background → black text.
 Theme detection: if the background color from analyze-template has low brightness, it's dark (white text); high brightness means light (black text).
 Don't rely on color alone to convey information — consider color vision diversity.
 
+**Text color — do NOT use muted/grey text:**
+All text uses the theme's full-contrast foreground color (white on dark, black/near-black on light).
+Do NOT express hierarchy or "supplementary" information by dimming text to grey, muted, or low-opacity
+colors (e.g. `#666`, `#888`, `#999`, `opacity < 1.0` on text). Grey body/secondary text reads as faded
+and lowers legibility on projected screens.
+- Supplementary or secondary information → make it **smaller** (font size), not greyer. Size difference
+  carries the hierarchy; the color stays full-contrast.
+- Emphasis → use a single accent color or bold weight, not by graying everything else down.
+
 **Constraints:**
+- Semi-transparent surface cards — opacity depends on fill/background contrast:
+  - **White fill on dark background** (creating a subtle light panel): use opacity 0.15.
+    Higher values (0.5+) make the card too bright and white text becomes unreadable.
+    Never go below 0.08 (invisible) or above 0.20 (text contrast lost).
+  - **Dark fill on light background** (creating a dark overlay): use opacity 0.85 minimum.
+    Lower values make text unreadable on projected screens.
+  - Rule of thumb: the surface must be visible as a distinct panel, AND text on top
+    must remain fully legible. Test both conditions.
+
 - You MUST NOT use emoji in slides because they render inconsistently across platforms — use `search-assets --type general` instead
 
 ## Typography
@@ -45,18 +63,15 @@ An icon that's too small looks like an afterthought. An icon that's too large co
 
 ## Effects
 
-The essence of effects is visual weighting. A shadow makes an element appear to float, creating separation from its surroundings.
-The more effects an element has, the more it demands attention. When too many elements demand attention, none stand out.
+Do not use decorative effects. No shadow, glow, 3D rotation, reflection, soft edge, or bevel
+on cards, images, text, or shapes. Flat design is the baseline — separation and hierarchy come
+from layout, color, and whitespace, not from effects.
 
-- Shadow: lifts elements off the background. The staple for card layouts. Subtle shadows are invisible on dark backgrounds
-- Glow: luminous feel. Shines on dark backgrounds. Nearly invisible on light backgrounds
-- 3D Rotation: depth and motion. Suited for screenshots and mockups. Hurts readability when applied to text
-- Reflection: premium feel. Suited for product images. A subtle size is enough
-- Soft Edge: blurs boundaries to blend into the background. Suited for photos
-- Bevel: dimensionality. Feels out of place when flat design is the baseline
-
-Stacking effects adds richness but also noise.
-If there's no reason to make an element stand out, it doesn't need effects.
+**The only allowed exception:**
+- In architecture diagrams, when an arrow overlaps text and reduces legibility, apply a black glow
+  to the text so it stays readable against the overlapping arrow. Use full opacity
+  (transparency 0% → `opacity: 1.0`), e.g. `"glow": {"color": "#000000", "radius": 4, "opacity": 1.0}`.
+  This is a legibility fix, not decoration — use it only where overlap actually occurs.
 
 ## Gradients
 

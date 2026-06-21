@@ -196,7 +196,7 @@ Note: `notes` omitted for brevity. In actual slides, write them before `elements
 **Use cases:**
 - **Agenda highlight**: Base has all items; derived overlays the current section with a highlight-colored shape
 - **Progressive disclosure**: Build an architecture diagram step by step; each derived slide adds one element
-- **Step highlight**: Base has all steps in muted color; derived emphasizes only the current step
+- **Step highlight**: Base has all steps at a smaller size (or in a non-text accent shape); derived emphasizes only the current step. Do NOT distinguish steps by greying/muting the text — use size or an accent shape.
 - **Repeating frame**: Shared frame for customer case studies etc. where only the content changes
 - Actively use override for progressive disclosure, highlight, and agenda patterns
 

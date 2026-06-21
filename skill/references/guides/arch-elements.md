@@ -292,7 +292,8 @@ Minimal (label only):
 The layout engine expands box nodes into existing element types (colors switch with `--theme`):
 
 - `rounded_rectangle`: semi-transparent background (opacity 0.18) + border + shadow "sm" + corner radius (0.07)
-- `textbox`: sublabel (muted) → label (bold) → description (muted), with autofit
+- `textbox`: sublabel (smaller) → label (bold) → description (smaller), with autofit. All three use the
+  theme foreground color — hierarchy comes from size and weight, not from muting/greying the text.
 
 ### Mixing icon + box
 

@@ -228,8 +228,8 @@ Column-colored plan comparison. Feature labels on the left, plan columns on the 
   "type": "table",
   "rowHeights": [180, 48, 48, 48, 48, 48, 48, 48],
   "style": {
-    "header": { "background": "none", "color": "#666666", "font-weight": "bold", "font-size": 20, "text-align": "center" },
-    "body":   { "background": "none", "color": "#666666", "text-align": "center" },
+    "header": { "background": "none", "color": "#1A1A1A", "font-weight": "bold", "font-size": 20, "text-align": "center" },
+    "body":   { "background": "none", "color": "#1A1A1A", "text-align": "center" },
     "border": { "color": "#DDDDDD", "width": 0.5 }
   },
   "columnStyles": {
@@ -262,7 +262,7 @@ Full grid lines, accent column for the recommended plan, generous padding.
   "type": "table",
   "style": {
     "header": { "background": "#50535D", "color": "#FFFFFF", "font-weight": "bold", "text-align": "center", "padding": {"top": 40, "bottom": 40, "left": 30, "right": 30} },
-    "body":   { "background": "#FFFFFF", "color": "#333333", "text-align": "center", "padding": {"top": 45, "bottom": 45, "left": 8, "right": 8} },
+    "body":   { "background": "#FFFFFF", "color": "#1A1A1A", "text-align": "center", "padding": {"top": 45, "bottom": 45, "left": 8, "right": 8} },
     "border": { "color": "#EEEEEE", "width": 1.5 }
   },
   "columnStyles": {
