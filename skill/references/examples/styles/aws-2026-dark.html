@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>aws-2026-dark — AWS 2026 公式カラーで、構造を主役にする</title>
+<style>
+  :root {
+    /* === Color tokens (from AWS 2026 Theme1.thmx) === */
+    /* === Slide background ===
+       Reality (verified from 2026_template_for_SDPM_dark.pptx):
+       - Default content layouts (Title Only, Title+Subtitle+Content, Comparison,
+         3/4-column, etc.) inherit master bg = dk1 = #000000 (pure black).
+       - Cover / Section Header / Thank You: black + bg image overlay.
+       - Agenda Slide 2: navy due to bg image (image3.png), NOT a different theme color.
+       - Quote Gradient: dark gradient bg image.
+       So in HTML: default = #000000. Use .slide.agenda for the navy-bg-image case. */
+    --color-bg:           #000000;  /* dk1 — default slide background */
+    --color-bg-agenda:    #161D26;  /* dk2 — agenda slide bg-image hint */
+    --color-bg-card:      rgba(255,255,255,0.05);
+    --color-bg-card-fill: #1F2731;  /* solid card on dk2 */
+    --color-text:         #FFFFFF;  /* lt1 */
+    --color-text-sub:     #FFFFFF;  /* 薄灰色は使わない — 白で統一 */
+    --color-text-muted:   #FFFFFF;  /* 同上 */
+    --color-text-on-light:#161D26;
+    --color-border:       rgba(255,255,255,0.10);
+    --color-divider:      rgba(255,255,255,0.10);
+    --color-link:         #41B1E8;  /* hlink */
+
+    /* AWS 2026 accents — order matters: primary→6 */
+    --color-accent1:      #41B3FF;  /* blue   — primary, links, headings */
+    --color-accent2:      #AD5CFF;  /* purple */
+    --color-accent3:      #00E500;  /* green  — needs dark text */
+    --color-accent4:      #FF5C85;  /* pink   */
+    --color-accent5:      #FF693C;  /* orange */
+    --color-accent6:      #FBD332;  /* yellow — needs dark text */
+
+    /* Semantic aliases */
+    --color-primary:      var(--color-accent1);
+    --color-success:      var(--color-accent3);
+    --color-warn:         var(--color-accent5);
+    --color-danger:       var(--color-accent4);
+
+    --template-theme:     dark;
+
+    /* === Typography === */
+    --font-body:    "Amazon Ember Display", "Amazon Ember", "Helvetica Neue", "Meiryo", "メイリオ", sans-serif;
+    --font-heading: "Amazon Ember Display", "Amazon Ember", "Helvetica Neue", "Meiryo", "メイリオ", sans-serif;
+
+    --size-cover-title:    60pt;
+    --size-cover-subtitle: 32pt;
+    --size-slide-title:    56pt;
+    --size-section-header: 48pt;
+    --size-h2:             24pt;
+    --size-body:           20pt;
+    --size-body-sm:        16pt;
+    --size-caption:        12pt;
+
+    /* === Surface === */
+    --card-radius:        8px;
+    --card-border-width:  1pt;
+    --card-shadow:        none;       /* flat — no shadow */
+    --divider-line:       0.75pt solid var(--color-divider);
+
+    /* === Layout (1920×1080 absolute coords) === */
+    --margin-x:           64px;
+    --title-y:            46px;
+    --content-y:          170px;
+    --content-bottom:     980px;
+  }
+
+  body {
+    margin: 0;
+    padding: 40px;
+    background: #2A2A2A;
+    zoom: 0.7;
+    font-family: var(--font-body);
+  }
+
+  .slide {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    margin: 0 auto 40px;
+    background: var(--color-bg);  /* #000000 — default for ALL slides */
+    color: var(--color-text);
+    overflow: hidden;
+    font-family: var(--font-body);
+  }
+  /* Cover / Section / Thank You: black + bg-image — same hex as default */
+  .slide.cover, .slide.section, .slide.thankyou { background: var(--color-bg); }
+  /* Agenda Slide 2 only: bg image makes it look navy. Visual hint for HTML. */
+  .slide.agenda { background: var(--color-bg-agenda); }
+
+  .el { position: absolute; }
+
+  /* ---- Text style classes ---- */
+  .t-cover-title    { font-family: var(--font-heading); font-size: var(--size-cover-title);    font-weight: 700; line-height: 1.2; color: var(--color-text); }
+  .t-cover-subtitle { font-family: var(--font-heading); font-size: var(--size-cover-subtitle); font-weight: 700; line-height: 1.3; color: var(--color-text); }
+
+  /* === Layout choice ===
+     - サブタイトル意図がある時は必ず 'Title and Subtitle' レイアウトを使う。
+       'Title Only' + textbox で代用すると placeholder の "Enter subtitle" が残る。
+     - subtitle は placeholders.10 にプレーンテキストで入れる ({{...:...}} 装飾不要、layout 側で accent1 が当たる)
+  */
+  /* === Slide title rule ===
+     - Default: 40pt
+     - With subtitle (.t-h2 below title): MUST be 1 line. If 40pt overflows, shrink to fit.
+     - No subtitle: may wrap to 2 lines at 40pt.
+     Use .t-slide-title-32 / .t-slide-title-28 to step down when 40pt overflows on 1 line.
+  */
+  .t-slide-title    { font-family: var(--font-heading); font-size: var(--size-slide-title);    font-weight: 700; line-height: 1.2; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t-slide-title.wrap   { white-space: normal; }   /* explicit opt-in to 2-line wrap (no subtitle case) */
+  .t-slide-title-32 { font-family: var(--font-heading); font-size: 32pt; font-weight: 700; line-height: 1.2; color: var(--color-text); white-space: nowrap; }
+  .t-slide-title-28 { font-family: var(--font-heading); font-size: 28pt; font-weight: 700; line-height: 1.2; color: var(--color-text); white-space: nowrap; }
+  .t-section-header { font-family: var(--font-heading); font-size: var(--size-section-header); font-weight: 700; line-height: 1.2; color: var(--color-text); }
+  .t-h2             { font-family: var(--font-heading); font-size: var(--size-h2);             font-weight: 700; line-height: 1.3; color: var(--color-accent1); }
+  .t-body           { font-size: var(--size-body);    font-weight: 400; line-height: 1.5; color: var(--color-text); }
+  .t-body-sub       { font-size: var(--size-body);    font-weight: 400; line-height: 1.5; color: var(--color-text-sub); }
+  .t-body-sm        { font-size: var(--size-body-sm); font-weight: 400; line-height: 1.5; color: var(--color-text); }
+  .t-caption        { font-size: var(--size-caption); font-weight: 400; line-height: 1.4; color: var(--color-text-muted); }
+
+  .accent1 { color: var(--color-accent1); }
+  .accent2 { color: var(--color-accent2); }
+  .accent3 { color: var(--color-accent3); }
+  .accent4 { color: var(--color-accent4); }
+  .accent5 { color: var(--color-accent5); }
+  .accent6 { color: var(--color-accent6); }
+
+  /* ---- Components ---- */
+
+  /* Card: bordered surface, accent left badge ribbon optional */
+  .card {
+    background: var(--color-bg-card);
+    border: var(--card-border-width) solid var(--color-accent1);
+    border-radius: var(--card-radius);
+    padding: 20px 24px;
+    box-sizing: border-box;
+  }
+  .card-2 { border-color: var(--color-accent2); }
+  .card-3 { border-color: var(--color-accent3); }
+  .card-4 { border-color: var(--color-accent4); }
+  .card-5 { border-color: var(--color-accent5); }
+  .card-6 { border-color: var(--color-accent6); }
+
+  .card-badge {
+    display: inline-block;
+    font-size: 18pt;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 4px;
+    background: var(--color-accent1);
+    color: var(--color-text);
+    margin-bottom: 10px;
+  }
+  .card-2 .card-badge { background: var(--color-accent2); }
+  .card-3 .card-badge { background: var(--color-accent3); color: var(--color-text-on-light); }
+  .card-4 .card-badge { background: var(--color-accent4); }
+  .card-5 .card-badge { background: var(--color-accent5); }
+  .card-6 .card-badge { background: var(--color-accent6); color: var(--color-text-on-light); }
+
+  .card-title {
+    font-size: var(--size-h2);
+    font-weight: 700;
+    color: var(--color-accent1);
+    margin: 4px 0 8px 0;
+  }
+  .card-2 .card-title { color: var(--color-accent2); }
+  .card-3 .card-title { color: var(--color-accent3); }
+  .card-4 .card-title { color: var(--color-accent4); }
+  .card-5 .card-title { color: var(--color-accent5); }
+  .card-6 .card-title { color: var(--color-accent6); }
+
+  /* Accent-bar card: solid bg + colored top stripe */
+  .card-stripe {
+    background: var(--color-bg-card-fill);
+    border: none;
+    border-top: 4px solid var(--color-accent1);
+    border-radius: 0;
+    padding: 18px 22px;
+    box-sizing: border-box;
+  }
+  .card-stripe.s2 { border-top-color: var(--color-accent2); }
+  .card-stripe.s3 { border-top-color: var(--color-accent3); }
+  .card-stripe.s4 { border-top-color: var(--color-accent4); }
+  .card-stripe.s5 { border-top-color: var(--color-accent5); }
+  .card-stripe.s6 { border-top-color: var(--color-accent6); }
+
+  /* Highlight blockquote */
+  /*
+   * JSON translation (sdpm shape element):
+   *   shape: 'rounded_rectangle'
+   *   adjustments: [0.2]  ← 中間の角丸 (0.04=シャープすぎ / 0.4=丸すぎ)
+   *   accent fill (#41B3FF / #FF693C 等) の callout / まとめ box は必ず 0.2
+   *   card-fill #1F2731 の大箱は 0.03 のままで OK
+   */
+  .highlight {
+    background: var(--color-accent1);
+    color: var(--color-text);
+    border-radius: 12px;
+    padding: 18px 28px;
+    font-size: var(--size-body);
+    font-weight: 700;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  /* Table */
+  .tbl { width: 100%; border-collapse: collapse; font-size: var(--size-body-sm); }
+  .tbl th {
+    background: var(--color-accent1);
+    color: var(--color-text);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .tbl td {
+    padding: 12px 16px;
+    border-bottom: var(--divider-line);
+    color: var(--color-text);
+  }
+  .tbl tr:nth-child(even) td { background: rgba(255,255,255,0.04); }
+  /*
+   * JSON translation (sdpm table element):
+   *   tableStyle 文字列指定 ("Medium Style 2 - Accent 1" 等) では banding が出ない。
+   *   必ず style.{header,body,altRow,border} で明示すること:
+   *     header:  { background:'#41B3FF', color:'#FFFFFF', font-weight:'bold' }
+   *     body:    { background:'#000000', color:'#FFFFFF' }
+   *     altRow:  { background:'#161D26' }
+   *     border:  { color:'rgba(255,255,255,0.10)', width:0.5 }
+   *   スキーマは headers / colWidths / rows (columns / columnWidths は旧式)
+   */
+
+  /* Swatch */
+  .swatch {
+    border-radius: var(--card-radius);
+    padding: 18px 20px;
+    box-sizing: border-box;
+    font-size: 14pt;
+    font-weight: 700;
+  }
+
+  /* Page number */
+  .page-num {
+    position: absolute;
+    right: 56px; bottom: 30px;
+    font-size: 10pt;
+    color: var(--color-text-muted);
+  }
+
+  /* Bullet style */
+  .bullets { list-style: none; padding: 0; margin: 0; }
+  .bullets li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 12px;
+    font-size: var(--size-body);
+    line-height: 1.5;
+  }
+  .bullets li::before {
+    content: "▸";
+    position: absolute;
+    left: 0; top: 0;
+    color: var(--color-accent1);
+    font-weight: 700;
+  }
+
+  /* ---- KPI / 数値強調 ---- */
+  /* .kpi: 1スライドに1-3個まで。比較や目標値を巨大数字で見せる時に使う */
+  .kpi {
+    text-align: left;
+    padding: 0;
+  }
+  .kpi-num {
+    font-size: 96pt;
+    font-weight: 700;
+    color: var(--color-accent1);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+  .kpi-num.k2 { color: var(--color-accent2); }
+  .kpi-num.k5 { color: var(--color-accent5); }
+  .kpi-unit {
+    font-size: 24pt;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-left: 8px;
+  }
+  .kpi-label {
+    font-size: var(--size-body);
+    color: var(--color-text);
+    margin-top: 4px;
+  }
+
+  /* ---- Quote (お客様の声・引用) ---- */
+  /* .quote: 引用は1スライド1個。出典必須 */
+  .quote {
+    border-left: 6px solid var(--color-accent5);
+    padding: 8px 0 8px 24px;
+    font-size: 28pt;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--color-text);
+  }
+  .quote-attr {
+    margin-top: 16px;
+    padding-left: 30px;
+    font-size: var(--size-body-sm);
+    font-style: normal;
+    color: var(--color-text);
+    opacity: 0.85;
+  }
+
+  /* ---- Callout (注意喚起 / リスク / 補足) ---- */
+  /* .callout-warn: リスク・注意点。accent4 (pink) で「気をつけて」を意味 */
+  /* .callout-info: 補足・脚注。accent1 (blue) で「ご参考」を意味 */
+  .callout {
+    border-left: 6px solid var(--color-accent1);
+    background: var(--color-bg-card-fill);
+    padding: 14px 20px;
+    border-radius: 0 6px 6px 0;
+    font-size: var(--size-body-sm);
+    line-height: 1.5;
+  }
+  .callout-warn { border-left-color: var(--color-accent4); }
+  .callout-info { border-left-color: var(--color-accent1); }
+  .callout-label {
+    font-size: 18pt;
+    font-weight: 700;
+    color: var(--color-accent4);
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .callout-info .callout-label { color: var(--color-accent1); }
+
+  /* ---- Steps (1→2→3 手順 / シーケンス) ---- */
+  /* .steps: 順序ある手順。3-5ステップ推奨。6+ なら別構成検討 */
+  .steps { display: flex; gap: 16px; align-items: stretch; }
+  .step {
+    flex: 1;
+    background: var(--color-bg-card-fill);
+    border-top: 4px solid var(--color-accent1);
+    padding: 18px 22px;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .step-num {
+    display: inline-block;
+    width: 36px; height: 36px; line-height: 36px;
+    border-radius: 50%;
+    background: var(--color-accent1);
+    color: var(--color-text);
+    text-align: center;
+    font-size: 18pt;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .step-title {
+    font-size: var(--size-h2);
+    font-weight: 700;
+    color: var(--color-accent1);
+    margin: 4px 0 8px 0;
+  }
+  .step-arrow {
+    flex: 0 0 auto;
+    align-self: center;
+    color: var(--color-accent1);
+    font-size: 36pt;
+    font-weight: 700;
+  }
+
+  /* ---- 2-column compare (現状 vs 提案 / Before vs After) ---- */
+  /* .compare-2: 左=現状/問題 (グレー)、右=提案/解決 (accent1) で対比 */
+  .cmp-pair { display: flex; gap: 32px; }
+  .cmp-col { flex: 1; padding: 24px 28px; box-sizing: border-box; border-radius: 8px; }
+  .cmp-before { background: var(--color-bg-card-fill); border: 1px solid var(--color-border); }
+  .cmp-after  { background: rgba(65,179,255,0.08); border: 1px solid var(--color-accent1); }
+  .cmp-label {
+    font-size: 18pt;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .cmp-before .cmp-label { color: var(--color-text); opacity: 0.7; }
+  .cmp-after  .cmp-label { color: var(--color-accent1); }
+  .cmp-title { font-size: var(--size-h2); font-weight: 700; margin: 4px 0 12px 0; }
+  .cmp-before .cmp-title { color: var(--color-text); opacity: 0.85; }
+  .cmp-after  .cmp-title { color: var(--color-accent1); }
+
+  /* ---- DO/DON'T pattern markers ---- */
+  .do, .dont {
+    padding: 16px 20px;
+    border-radius: 6px;
+    font-size: var(--size-body-sm);
+    line-height: 1.5;
+  }
+  .do   { background: rgba(0,229,0,0.10);  border-left: 4px solid var(--color-accent3); }
+  .dont { background: rgba(255,92,133,0.10); border-left: 4px solid var(--color-accent4); }
+  .do::before   { content: "✓ DO  "; color: var(--color-accent3); font-weight: 700; }
+  .dont::before { content: "✗ DON'T  "; color: var(--color-accent4); font-weight: 700; }
+
+  /* ---- Section divider (章扉) ---- */
+  /* .slide.section-divider: 章の切り替え。本文は最小、accent縦バーで重み */
+  .slide.section-divider {
+    background: var(--color-bg-cover);
+  }
+  .section-bar {
+    width: 8px;
+    background: var(--color-accent1);
+  }
+  .section-num {
+    font-size: 96pt;
+    font-weight: 700;
+    color: var(--color-accent1);
+    line-height: 1.0;
+    opacity: 0.5;
+  }
+  .section-title {
+    font-size: var(--size-section-header);
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     Slide 1: Cover (premise)
+     ============================================================ -->
+<div class="slide cover">
+  <div class="el" style="left:64px; top:60px; width:1792px;">
+    <div class="t-caption" style="color: var(--color-text-sub); opacity:0.7;">aws-2026-dark · style guide</div>
+  </div>
+  <div class="el" style="left:64px; top:380px; width:1700px;">
+    <div class="t-cover-title">AWS 2026 公式カラーで、<br/>構造を主役にする。</div>
+  </div>
+  <div class="el" style="left:64px; top:620px; width:1700px;">
+    <div class="t-cover-subtitle">装飾は最小、6 アクセントで意味を分節する。</div>
+  </div>
+  <div class="el" style="left:64px; top:880px; width:600px;">
+    <div class="t-body-sm" style="color: var(--color-text-sub);">Premise: 情報密度より、識別性。色は装飾ではなくラベル。</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     Slide 2: Design tokens (palette + typography)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">デザイントークン</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">AWS 2026 公式テーマから抽出した、6 アクセント + dark base</div>
+  </div>
+
+  <!-- Palette grid: 8 swatches in 4×2 (bg/text + 6 accents) -->
+  <div class="el" style="left:64px; top:240px; width:1792px;">
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:18px;">
+      <div class="swatch" style="background: var(--color-bg); color: var(--color-text); border:1px solid var(--color-border);">bg #161D26</div>
+      <div class="swatch" style="background: var(--color-text); color: var(--color-text-on-light);">text #FFFFFF</div>
+      <div class="swatch" style="background: var(--color-accent1); color: var(--color-text);">accent1 #41B3FF</div>
+      <div class="swatch" style="background: var(--color-accent2); color: var(--color-text);">accent2 #AD5CFF</div>
+      <div class="swatch" style="background: var(--color-accent3); color: var(--color-text-on-light);">accent3 #00E500</div>
+      <div class="swatch" style="background: var(--color-accent4); color: var(--color-text);">accent4 #FF5C85</div>
+      <div class="swatch" style="background: var(--color-accent5); color: var(--color-text);">accent5 #FF693C</div>
+      <div class="swatch" style="background: var(--color-accent6); color: var(--color-text-on-light);">accent6 #FBD332</div>
+    </div>
+  </div>
+
+  <!-- Typography ladder -->
+  <div class="el" style="left:64px; top:560px; width:1100px;">
+    <div class="t-h2" style="margin-bottom:18px;">Type ladder</div>
+    <div class="t-cover-title" style="margin-bottom:6px;">Cover 60pt</div>
+    <div class="t-slide-title" style="margin-bottom:6px;">Slide title 36pt</div>
+    <div class="t-h2" style="margin-bottom:6px;">Heading 24pt (accent1)</div>
+    <div class="t-body" style="margin-bottom:6px;">Body 20pt — 標準のテキスト</div>
+    <div class="t-body-sm" style="margin-bottom:6px;">Small 16pt — 補足説明</div>
+    <div class="t-caption">Caption 12pt — 出典・脚注</div>
+  </div>
+
+  <div class="el" style="left:1200px; top:560px; width:656px;">
+    <div class="t-h2" style="margin-bottom:18px;">Usage rule</div>
+    <ul class="bullets">
+      <li>1 スライドに使うアクセントは <span class="accent1">3 色まで</span></li>
+      <li>accent3 / accent6 は文字色には使わない(背景のみ)</li>
+      <li>文字背景は dk2、本文は lt1。<br/>例外なし</li>
+    </ul>
+  </div>
+
+  <div class="page-num">2 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 3: Standard content (title + h2 + bullets + side card)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">標準コンテンツの組み方</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">タイトル + 1 行サブタイトル + 本文 + サイドカード</div>
+  </div>
+
+  <div class="el" style="left:64px; top:240px; width:1100px;">
+    <div class="t-body" style="margin-bottom:24px;">本文は <strong style="color:var(--color-accent1);">20pt 推奨</strong>。情報密度が高い場合のみ 16pt まで下げる。</div>
+    <ul class="bullets">
+      <li>箇条書きのマーカーは accent1 の ▸(▶ ではない)</li>
+      <li>1 項目 1 行を原則。複数行になるなら段落にする</li>
+      <li><strong style="color: var(--color-accent5);">強調は accent5(orange)</strong>、リンクは accent1 (青)</li>
+      <li>行間 1.5、項目間 12px の空白</li>
+    </ul>
+  </div>
+
+  <div class="el" style="left:1240px; top:240px; width:616px;">
+    <div class="card" style="height: 280px;">
+      <div class="card-badge">RULE</div>
+      <div class="card-title">1 スライド 1 メッセージ</div>
+      <div class="t-body" style="margin-top:10px;">
+        サイドカードは「読み手にここを覚えて帰ってほしい」一文。<br/><br/>
+        装飾ではなく、<span class="accent5">構造的な強調</span>として使う。
+      </div>
+    </div>
+  </div>
+
+  <div class="el" style="left:64px; top:880px; width:1792px;">
+    <div class="highlight">本文 → 主張、サイドカード → ハイライト、ハイライトボックス → 結論</div>
+  </div>
+
+  <div class="page-num">3 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 4: Cards-3 (most-used pattern)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">3 カードレイアウト ― 並列で見せたいときの定番</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">accent1 / accent2 / accent5 の順で自動配色(青→紫→橙)</div>
+  </div>
+
+  <div class="el" style="left:64px; top:240px; width:560px;">
+    <div class="card" style="height:560px;">
+      <div class="card-badge">1</div>
+      <div class="card-title">直感的に作れる</div>
+      <div class="t-body" style="margin-top:14px;">日本語で要件を書くだけ。マニュアルを読み込まなくても始められる。</div>
+      <ul class="bullets" style="margin-top:24px;">
+        <li>自然言語入力</li>
+        <li>仕様書は AI が整える</li>
+        <li>学習コスト低</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="el" style="left:680px; top:240px; width:560px;">
+    <div class="card card-2" style="height:560px;">
+      <div class="card-badge">2</div>
+      <div class="card-title">ロックインされない</div>
+      <div class="t-body" style="margin-top:14px;">出力は標準のコード。専用言語ではないので、どのベンダーでも保守できる。</div>
+      <ul class="bullets" style="margin-top:24px;">
+        <li>TypeScript / Python</li>
+        <li>マイグレーション概念なし</li>
+        <li>ベンダー競争が成立</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="el" style="left:1296px; top:240px; width:560px;">
+    <div class="card card-5" style="height:560px;">
+      <div class="card-badge">3</div>
+      <div class="card-title">利用者で増えない</div>
+      <div class="t-body" style="margin-top:14px;">ライセンスは作る人(開発者)単位。エンドユーザ数で費用が跳ねない。</div>
+      <ul class="bullets" style="margin-top:24px;">
+        <li>開発者シート課金</li>
+        <li>実行基盤は AWS 従量</li>
+        <li>グループ展開が容易</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="page-num">4 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 5: Comparison columns + table
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">比較テーブル ― 要件 × 選択肢</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">行=要件、列=選択肢。記号(◎/○/△/×)で密度を保つ</div>
+  </div>
+
+  <div class="el" style="left:64px; top:240px; width:1792px;">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:38%;">要件</th>
+          <th style="width:20%; text-align:center;">ローコード</th>
+          <th style="width:21%; text-align:center;">AI 開発ツール</th>
+          <th style="width:21%; text-align:center;">フルスクラッチ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>直感性 / 学習コスト</td>
+          <td style="text-align:center;" class="accent1">◎</td>
+          <td style="text-align:center;" class="accent1">◎</td>
+          <td style="text-align:center;" class="accent4">×</td>
+        </tr>
+        <tr>
+          <td>ベンダーロック回避</td>
+          <td style="text-align:center;" class="accent4">×</td>
+          <td style="text-align:center;" class="accent3">◎</td>
+          <td style="text-align:center;" class="accent3">◎</td>
+        </tr>
+        <tr>
+          <td>利用者課金の抑制</td>
+          <td style="text-align:center;" class="accent4">×</td>
+          <td style="text-align:center;" class="accent3">◎</td>
+          <td style="text-align:center;" class="accent3">◎</td>
+        </tr>
+        <tr>
+          <td>適用範囲の広さ</td>
+          <td style="text-align:center;" class="accent5">△</td>
+          <td style="text-align:center;" class="accent3">◎</td>
+          <td style="text-align:center;" class="accent3">◎</td>
+        </tr>
+        <tr>
+          <td>初期構築の速さ</td>
+          <td style="text-align:center;" class="accent3">◎</td>
+          <td style="text-align:center;" class="accent1">○</td>
+          <td style="text-align:center;" class="accent4">×</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="el" style="left:64px; top:870px; width:1792px;">
+    <div class="t-caption">記号: ◎ 強く適合 / ○ 適合 / △ 条件付き / × 不適合 ― 色は記号と意味を一致させる(緑=良、橙=条件、桃=不適)</div>
+  </div>
+
+  <div class="page-num">5 / 14</div>
+</div>
+
+
+<!-- ============================================================
+     Slide 6: Section divider (章扉)
+     ============================================================ -->
+<div class="slide section-divider">
+  <!-- 縦バー: 左 80px、画面いっぱい -->
+  <div class="el section-bar" style="left:80px; top:200px; height:680px;"></div>
+
+  <div class="el" style="left:140px; top:340px; width:1700px;">
+    <div class="section-num">02</div>
+  </div>
+  <div class="el" style="left:140px; top:520px; width:1700px;">
+    <div class="section-title">セキュリティ統制の現在地と打ち手</div>
+  </div>
+  <div class="el" style="left:140px; top:680px; width:1700px;">
+    <div class="t-h2">3 つの統制軸 — 識別・検知・復旧</div>
+  </div>
+
+  <div class="page-num">6 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 7: Message slide (★最頻出: 結論 + 補足 bullet)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">メッセージスライド ― 1 結論 + 補足 3 点</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">.highlight を中央に置き、bullet で根拠を支える</div>
+  </div>
+
+  <!-- 結論 box: スライドの主張をひと言で -->
+  <div class="el" style="left:64px; top:280px; width:1792px;">
+    <div class="highlight" style="font-size:28pt; padding:32px 40px;">
+      <span class="accent6">フロンティアモデルはどこのクラウドにいても使える時代</span>に入った。<br/>
+      選択基準は「<u>データとガバナンスがどこにあるか</u>」へシフトする。
+    </div>
+  </div>
+
+  <!-- 補足 bullet: 3 点で結論を支える -->
+  <div class="el" style="left:64px; top:560px; width:1792px;">
+    <ul class="bullets">
+      <li><span class="accent1">Bedrock で OpenAI GPT-5.5/5.4 + Codex が GA</span>(2026-06-01)。プロバイダ選択の制約が緩和</li>
+      <li>Anthropic は Bedrock / Vertex / Azure Foundry の <span class="accent1">3 API</span> で利用可能</li>
+      <li>差異は <span class="accent5">移行コスト ≈ 3 行 (api_key + base_url + model_id prefix)</span> に収束</li>
+    </ul>
+  </div>
+
+  <div class="page-num">7 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 8: 2-column compare (現状 vs 提案 / Before vs After)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">2 列比較 ― 現状の痛み と 提案後の姿</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">左: グレー(現状)、右: accent1 (提案) で対比を立てる</div>
+  </div>
+
+  <div class="el" style="left:64px; top:260px; width:1792px;">
+    <div class="cmp-pair">
+      <div class="cmp-col cmp-before">
+        <div class="cmp-label">Before — 現状</div>
+        <div class="cmp-title">OT データが Public Internet を 2 回横断</div>
+        <ul class="bullets">
+          <li>OT サイト → Cognite SaaS → Atlas AI まで往復</li>
+          <li>DTO + リスク露出 + レイテンシで月額 ¥12M</li>
+          <li>監査ログが SaaS 側に閉じる</li>
+        </ul>
+      </div>
+      <div class="cmp-col cmp-after">
+        <div class="cmp-label">After — 提案</div>
+        <div class="cmp-title">PrivateLink + Bedrock でループ短縮</div>
+        <ul class="bullets">
+          <li>OT → Direct Connect → AWS 内で完結</li>
+          <li>同等処理を <span class="accent1">¥1.2M〜2.4M / 月</span></li>
+          <li>ログ・モデル・データが AWS 内で監査可</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-num">8 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 9: KPI (数値強調)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">KPI ブロック ― 数値で殴る</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">巨大数字 + 単位 + ラベル。1 スライド 1-3 個まで</div>
+  </div>
+
+  <div class="el" style="left:64px; top:300px; width:560px;">
+    <div class="kpi">
+      <div><span class="kpi-num">1/5</span></div>
+      <div class="kpi-label" style="margin-top:12px;">月額コスト<br/>(対 SaaS フルスタック)</div>
+    </div>
+  </div>
+
+  <div class="el" style="left:680px; top:300px; width:560px;">
+    <div class="kpi">
+      <div><span class="kpi-num k2">3</span><span class="kpi-unit">行</span></div>
+      <div class="kpi-label" style="margin-top:12px;">OpenAI → Bedrock<br/>移行に必要なコード差分</div>
+    </div>
+  </div>
+
+  <div class="el" style="left:1296px; top:300px; width:560px;">
+    <div class="kpi">
+      <div><span class="kpi-num k5">7</span><span class="kpi-unit">x</span></div>
+      <div class="kpi-label" style="margin-top:12px;">Kiro Quota Multiplier<br/>(GenAI Comp Plan, 2026-)</div>
+    </div>
+  </div>
+
+  <div class="el" style="left:64px; top:760px; width:1792px;">
+    <div class="t-caption">出典: 内部試算 (2026-06) / Eva Knight memo (2026-06-01)</div>
+  </div>
+
+  <div class="page-num">9 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 10: Steps (1→2→3 手順 / シーケンス)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">Steps ― 順序ある手順を見せる</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">3-5 ステップが目安。6+ なら別構成 (table 等) を検討</div>
+  </div>
+
+  <div class="el" style="left:64px; top:340px; width:1792px;">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Discovery</div>
+        <div class="t-body-sm">業務 + データ + 統制の現状を 5 軸でヒアリング</div>
+      </div>
+      <div class="step-arrow">▶</div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">PoC</div>
+        <div class="t-body-sm">最小スコープで Bedrock + Q Business を 4 週間動かす</div>
+      </div>
+      <div class="step-arrow">▶</div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Production</div>
+        <div class="t-body-sm">統制・SLA・コストを本番要件で再評価し展開</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-num">10 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 11: Quote (お客様の声)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">Quote ― お客様の声・引用は 1 スライド 1 個</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">accent5 縦バー + イタリック。出典(誰・所属・日付) 必須</div>
+  </div>
+
+  <div class="el" style="left:120px; top:340px; width:1680px;">
+    <div class="quote">
+      「フロンティアモデルが Bedrock に揃った今、AWS を選ぶ理由は <span class="accent5">データとガバナンスがどこにあるか</span> に集約された。」
+    </div>
+    <div class="quote-attr">
+      — 仮想事例: 大手 FSI CISO (2026 Q2)
+    </div>
+  </div>
+
+  <div class="page-num">11 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 12: Callout (注意喚起 / 補足)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">Callout ― リスク表示と補足</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">.callout-warn = リスク (accent4 桃) / .callout-info = 補足 (accent1 青)</div>
+  </div>
+
+  <div class="el" style="left:64px; top:300px; width:1792px;">
+    <div class="callout callout-warn">
+      <div class="callout-label">⚠ Risk</div>
+      EDP commit に 3P モデル (Claude / OpenAI / Meta) は <strong>% discount が効かない</strong>。
+      commit 消化のみ。3P モデルの値引きは <strong>BPO (Bedrock Private Offer)</strong> 経由で各プロバイダと交渉。
+    </div>
+  </div>
+
+  <div class="el" style="left:64px; top:540px; width:1792px;">
+    <div class="callout callout-info">
+      <div class="callout-label">ℹ Info</div>
+      Anthropic は <strong>AWS Trainium (Project Rainier)</strong> + Google TPU の 2 系統で学習。
+      推論は Bedrock / Vertex / Azure Foundry の 3 API で提供。
+    </div>
+  </div>
+
+  <div class="page-num">12 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 13: DO / DON'T (デザインルール)
+     ============================================================ -->
+<div class="slide">
+  <div class="el" style="left:64px; top:46px; width:1792px;">
+    <div class="t-slide-title">DO / DON'T ― 設計ルール</div>
+  </div>
+  <div class="el" style="left:64px; top:130px; width:1792px;">
+    <div class="t-h2">色・密度・強調の使い方は揃える。守るほど読みやすい</div>
+  </div>
+
+  <!-- 左カラム: DO -->
+  <div class="el" style="left:64px; top:280px; width:880px;">
+    <div class="t-h2" style="margin-bottom:14px;">DO ― 守りたいこと</div>
+    <div class="do" style="margin-bottom:12px;">アクセントは <strong>1 スライドに 3 色まで</strong>。主役+補助2 で意味を分節</div>
+    <div class="do" style="margin-bottom:12px;">本文は <strong>20pt 以上</strong>。情報密度が高い時のみ 16pt まで</div>
+    <div class="do" style="margin-bottom:12px;">結論は <strong>.highlight を 1 スライドに 1 個だけ</strong>。複数置くと主張が散る</div>
+    <div class="do">表 (.tbl) は <strong>記号 ◎/○/△/×</strong> + 色で密度を保つ</div>
+  </div>
+
+  <!-- 右カラム: DON'T -->
+  <div class="el" style="left:976px; top:280px; width:880px;">
+    <div class="t-h2" style="margin-bottom:14px;">DON'T ― 避けたいこと</div>
+    <div class="dont" style="margin-bottom:12px;"><strong>4 色以上のアクセント</strong>を 1 スライドで使う (青/紫/橙/桃が同居)</div>
+    <div class="dont" style="margin-bottom:12px;"><strong>本文 14pt 以下</strong>。後ろの席から読めない</div>
+    <div class="dont" style="margin-bottom:12px;">.highlight を <strong>2 個以上</strong>並べる。視点が迷子になる</div>
+    <div class="dont"><strong>装飾としての色</strong>。色はラベル(意味)で、装飾ではない</div>
+  </div>
+
+  <div class="page-num">13 / 14</div>
+</div>
+
+<!-- ============================================================
+     Slide 14: Thank you
+     ============================================================ -->
+<div class="slide cover">
+  <div class="el" style="left:64px; top:380px; width:1792px;">
+    <div class="t-cover-title accent1">Thank You.</div>
+  </div>
+  <div class="el" style="left:64px; top:560px; width:1792px;">
+    <div class="t-cover-subtitle" style="color: var(--color-text-sub);">質問・ご指摘お待ちしています。</div>
+  </div>
+  <div class="el" style="left:64px; top:880px; width:1792px;">
+    <div class="t-caption">© Amazon Web Services Japan G.K.</div>
+  </div>
+</div>
+
+</body>
+</html>
