@@ -10,6 +10,8 @@ Entries before v0.5.0 were written retroactively as summaries.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-20
+
 ### Added
 
 - **Scaffold pass in the compose workflow** — before the parallel content
@@ -97,8 +99,121 @@ Entries before v0.5.0 were written retroactively as summaries.
   unchanged.
 - `clients/kiro/install.py` gained `--mode {auto,legacy,power}`, `--kiro-home`
   and `--replace-existing`.
+- **GPT-6 Astra** (`global.openai.gpt-6-astra`) is selectable for chat and
+  create. Throughput is roughly a third of GPT-5.6 Terra (~25 vs ~90 output
+  tokens/s measured in `ap-northeast-1`), so expect longer waits on
+  compose-heavy runs.
+- **Kimi K3** (`global.moonshotai.kimi-k3`) is selectable for chat and create.
+  Its Converse constraints are identical to the GPT models' — it rejects
+  `temperature`, `topP` and Bedrock's `cachePoint`, while its own implicit
+  prompt caching is on by default — so it reuses the same invocation profile
+  and needed no new agent code. Throughput is competitive with GPT-5.6 Terra
+  (~80–175 output tokens/s measured in `ap-northeast-1`). Note it always emits
+  reasoning content, and those tokens count against the output budget: a
+  one-word answer costs ~50 output tokens where Claude spends ~5, so short
+  interactions are disproportionately expensive.
+
+### Changed
+
+- **MCP servers connect concurrently instead of one after another** — Strands
+  connects them serially: `ToolRegistry.process_tools()` iterates the tools list
+  and blocks on `await provider.load_tools()` for each ToolProvider in turn. With
+  three servers — the Presentation Maker one on AgentCore plus two AWS servers
+  pinned to `us-east-1` — that put their handshakes on the critical path back to
+  back, and a profile attributed roughly 2.6s to the two AWS ones alone. They are
+  now connected up front in a thread pool; `load_tools()` caches its result, so
+  Strands' own call is a cache hit. Measured on the dev stack: agent setup went
+  from 7.72s to **5.14s**. As a side effect the `required` flag in `MCP_DEFS` now
+  does what it always claimed — it was only guarding client construction, which is
+  lazy and cannot fail, so an unreachable optional server used to surface as a hard
+  failure inside Strands (`MCPClient` defaults to `continue_on_error=False`).
+  An optional server that cannot be reached is now dropped with a status entry.
+- **`diff_pptx` is no longer offered on the cloud path** — `servers/remote` does not
+  bind it, so listing it in the agent's tool allowlist produced a "not found on MCP
+  server" warning on every request. The hand-edit sync workflow stays a local/CLI
+  capability and the workflow document says so; the tool is slated for removal.
+
+- **OpenAI GPT models are served through the Converse API** instead of
+  `bedrock-mantle`. They are now registered under their global inference
+  profile ids (`global.openai.gpt-5.6-terra`, `global.openai.gpt-6-astra`) and
+  go through the same `BedrockModel` path as every other model. This removes
+  `agent/mantle_client.py`, the `MANTLE_MODELS` / `MANTLE_RESPONSES_MODELS`
+  tables and their region-resolution helper, the OpenAI SDK dependency
+  (`strands-agents[openai]`), and the `bedrock-mantle:CreateInference` /
+  `bedrock-mantle:CallWithBearerToken` IAM grants on the agent role.
+  Prompt caching still applies: these models do not accept Bedrock's
+  `cachePoint` block, but their own implicit prompt caching is on by default.
+
+### Removed
+
+- **GPT-5.5 and GPT-5.4** — not available as Bedrock foundation models, so they
+  cannot be reached over the Converse API. They were only ever callable through
+  the removed `bedrock-mantle` path.
+- **Nova 2 Lite** — it was registered as `us.amazon.nova-2-lite-v1:0`, a
+  US-only cross-region inference profile that does not exist in the deployment
+  region, so selecting it always failed with `ValidationException: The provided
+  model identifier is invalid`.
 
 ### Fixed
+
+- **The Claude Code plugin manifest tracks the engine version again** —
+  `.claude-plugin/plugin.json` sat at `0.3.0` while the engine reached `0.7.1`.
+  `plugin.json` and `.codex-plugin/plugin.json` each had a test asserting they
+  follow `sdpm.__version__`; this manifest had none, so the drift went unnoticed
+  across several releases. It now carries the same guard.
+
+
+- **The knowledge base id is resolved per request instead of at import** — the
+  remote MCP server read `KB_SSM_PARAM` from SSM at module import and built its
+  `KBSync` from the result. SSM exists so that value can change without a
+  redeploy, so caching it at startup pinned the runtime to whatever the id was
+  when the process began. It is now resolved on first use and refreshed every
+  300s. This also matters on AgentCore Runtime `platformVersion` V2, which
+  snapshots the process after initialization and shares that memory state with
+  every restored instance: a value read at import is frozen for the life of the
+  snapshot, where V1's periodic container recycling used to re-read it. Tool
+  registration for `search_slides` now depends on configuration rather than on a
+  successful read, so a transient SSM failure no longer removes the tool for the
+  life of the process.
+- **MCP requests no longer start a new microVM on every agent turn** — the agent
+  connected to the Presentation Maker MCP server on AgentCore Runtime without
+  sending `Mcp-Session-Id`. AgentCore routes MCP requests to a microVM by that
+  header and mints a fresh session id for any request arriving without one, so
+  each agent turn — plus each composer slide group, which builds its own client —
+  paid a new-session start on a 630 MiB image. The caller's session id is now
+  forwarded, and composer groups use `{session_id}-g{n}` so they keep the
+  per-group isolation they were written for while still reusing their own microVM
+  across composes. Measured in `ap-northeast-1`: 0.18-0.20s with a consistent id,
+  0.59s without one when warm capacity happened to be available, and 17.6-19.7s
+  without one when it was not. Replaying an id after the 900s idle timeout returns
+  HTTP 200 and re-establishes the session, so no re-initialize path is needed
+  (verified for the stateless MCP server this project runs).
+- **Importing an attachment from a URL works again** — `fetch_url` sends
+  `Connection: close`, which makes `http.client` set `response.will_close`, and
+  `getresponse()` then hands the connection to the response by calling
+  `HTTPConnection.close()` — setting `conn.sock` to `None` before a single byte of
+  the body is read. The body loop re-armed its idle read timeout on that socket
+  every iteration, so every URL fetch died with `AttributeError: 'NoneType'
+  object has no attribute 'settimeout'` and the agent reported the failure as a
+  sandbox networking problem. The loop now re-arms the timeout on a socket
+  reference captured before `getresponse()`, and stops once the body is closed
+  (the fd is really gone by then). The idle read timeout is preserved rather than
+  dropped: it is still bounded by both `IDLE_READ_TIMEOUT_S` and the remaining
+  total budget on every read.
+- **Tool results carrying images work on GPT models** — OpenAI GPT models on
+  Bedrock Converse reject an `image` block nested inside a `toolResult`
+  (`ValidationException: This model doesn't support the image field for user
+  messages`), which broke slide-preview review in compose and `web_fetch` on
+  image URLs. A `BeforeModelCallEvent` hook (`agent/message_hooks.py`) now
+  moves such images up to sit beside the `toolResult` in the same user message
+  — a shape both GPT and Claude accept, so it is applied to every model rather
+  than gated per model. The image still reaches the model, so vision is
+  preserved. It runs before every model call (not on message-added), so it also
+  normalizes pre-seeded composer history and restored sessions.
+- **GPT models no longer send `temperature`** — both GPT-6 Astra and GPT-5.6
+  Terra reject the field on Converse (`This model doesn't support the
+  temperature field`). The removed `bedrock-mantle` path had accepted it, so
+  the profile carried `temperature=0.7` until the migration.
 
 - **Bedrock invocation-logging custom resource is now idempotent** — it
   previously overwrote an existing account-level logging configuration on
